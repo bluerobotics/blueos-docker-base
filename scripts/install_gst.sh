@@ -43,6 +43,7 @@ cd /tmp
 git clone -b $GST_VERSION --single-branch --depth=1 https://github.com/GStreamer/gst-build
 cd gst-build
 meson builddir \
+    --buildtype=release \
     -Domx=enabled \
     -Dpython=enabled \
     -Drtsp_server=enabled \
