@@ -20,8 +20,6 @@ BUILD_TOOLS=(
     nasm
     ninja-build
     pkg-config
-    python3
-    python3-pip
 )
 
 BUILD_LIBS=(
