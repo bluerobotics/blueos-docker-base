@@ -64,6 +64,10 @@ rm -rf gst-build
 
 pip3 uninstall -y meson
 
+## Remove debug symbols
+GST_DLL_FOLDER=$(find / | grep libavutil.so | head -n 1 | xargs dirname)
+find $GST_DLL_FOLDER/* | grep \\.so | xargs strip
+
 apt -y remove ${BUILD_TOOLS[*]}
 apt -y autoremove
 apt -y clean
