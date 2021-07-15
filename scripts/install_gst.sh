@@ -20,8 +20,6 @@ BUILD_TOOLS=(
     nasm
     ninja-build
     pkg-config
-    python3
-    python3-pip
 )
 
 BUILD_LIBS=(
@@ -45,6 +43,7 @@ cd /tmp
 git clone -b $GST_VERSION --single-branch --depth=1 https://github.com/GStreamer/gst-build
 cd gst-build
 meson builddir \
+    --buildtype=release \
     -Domx=enabled \
     -Dpython=enabled \
     -Drtsp_server=enabled \
@@ -63,6 +62,10 @@ cd /tmp
 rm -rf gst-build
 
 pip3 uninstall -y meson
+
+## Remove debug symbols
+GST_DLL_FOLDER=$(find / | grep libavutil.so | head -n 1 | xargs dirname)
+find $GST_DLL_FOLDER/* | grep \\.so | xargs strip
 
 apt -y remove ${BUILD_TOOLS[*]}
 apt -y autoremove
