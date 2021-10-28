@@ -8,4 +8,14 @@ COPY ./scripts/install_gst.sh /install_gst.sh
 RUN GST_VERSION=1.17.2 ./install_gst.sh && rm /install_gst.sh
 
 # Install necessary tools for basic usage
-RUN apt install -y --no-install-recommends file locate tmux unzip nano htop iputils-ping watch wget iproute2
+RUN apt install -y --no-install-recommends \
+    file \
+    htop \
+    iproute2 \
+    iputils-ping \
+    locate \
+    nano \
+    tmux \
+    unzip \
+    watch \
+    wget \
