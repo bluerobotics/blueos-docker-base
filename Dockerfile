@@ -9,12 +9,16 @@ RUN GST_VERSION=1.17.2 ./install_gst.sh && rm /install_gst.sh
 
 # Install necessary tools for basic usage
 RUN apt install -y --no-install-recommends \
+    dnsutils \
     file \
     htop \
+    i2c-tools \
     iproute2 \
     iputils-ping \
     locate \
+    lsof \
     nano \
+    sshpass \
     tmux \
     unzip \
     watch \
