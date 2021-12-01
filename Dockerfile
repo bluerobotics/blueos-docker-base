@@ -5,7 +5,7 @@ RUN mkdir -p /home/pi
 
 # Install gstreamer
 COPY ./scripts/install_gst.sh /install_gst.sh
-RUN GST_VERSION=1.17.2 ./install_gst.sh && rm /install_gst.sh
+RUN GST_VERSION=1.18.5 ./install_gst.sh && rm /install_gst.sh
 
 # Install necessary tools for basic usage
 RUN apt install -y --no-install-recommends \
