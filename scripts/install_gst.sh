@@ -35,13 +35,16 @@ apt update
 apt -y install ${BUILD_TOOLS[*]}
 apt -y install ${BUILD_LIBS[*]}
 
-pip3 install meson
+pip3 install "meson==0.58"
 
 # Download and install gstreamer via gst-build
 
 cd /tmp
 git clone -b $GST_VERSION --single-branch --depth=1 https://github.com/GStreamer/gst-build
 cd gst-build
+# Remove master version from dependency
+sed -i 's/master/v0.21.1/g' subprojects/libpsl.wrap
+
 meson builddir \
     --buildtype=release \
     -Domx=enabled \
