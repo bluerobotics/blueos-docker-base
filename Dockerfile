@@ -18,6 +18,8 @@ RUN apt install -y --no-install-recommends \
     locate \
     lsof \
     nano \
+    screen \
+    ssh \
     sshpass \
     tmux \
     unzip \
