@@ -71,3 +71,11 @@ find $GST_DLL_FOLDER/* | grep \\.so | xargs strip
 apt -y remove ${BUILD_TOOLS[*]}
 apt -y autoremove
 apt -y clean
+
+# Make sure that we have the necessary elements for stream to work
+gst-inspect-1.0 \
+    rtph264pay \
+    udpsink \
+    videoconvert \
+    videotestsrc \
+    x264enc
