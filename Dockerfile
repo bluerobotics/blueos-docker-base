@@ -21,6 +21,7 @@ RUN apt install -y --no-install-recommends \
     locate \
     lsof \
     nano \
+    parallel \
     screen \
     ssh \
     sshpass \
