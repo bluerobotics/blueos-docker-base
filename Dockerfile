@@ -9,12 +9,15 @@ RUN GST_VERSION=1.18.5 ./install_gst.sh && rm /install_gst.sh
 
 # Install necessary tools for basic usage
 RUN apt install -y --no-install-recommends \
+    bat \
     dnsutils \
+    exa \
     file \
     htop \
     i2c-tools \
     iproute2 \
     iputils-ping \
+    jq \
     locate \
     lsof \
     nano \
@@ -24,4 +27,9 @@ RUN apt install -y --no-install-recommends \
     tmux \
     unzip \
     watch \
-    wget \
+    wget
+
+RUN RCFILE_PATH="/etc/blueosrc" \
+    && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
+    && echo "alias ls=exa" >> $RCFILE_PATH \
+    && echo "source $RCFILE_PATH" >> /etc/bash.bashrc
