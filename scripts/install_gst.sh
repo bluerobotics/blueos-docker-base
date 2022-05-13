@@ -14,6 +14,7 @@ sleep 5s;
 BUILD_TOOLS=(
     binutils
     bison
+    curl
     flex
     g++
     git
@@ -27,6 +28,7 @@ BUILD_LIBS=(
     libglib2.0-0
     libgtest-dev
     libmount-dev
+    libxml2
 )
 
 # Install necessary dependencies
@@ -35,20 +37,25 @@ apt update
 apt -y install ${BUILD_TOOLS[*]}
 apt -y install ${BUILD_LIBS[*]}
 
-pip3 install "meson==0.58"
+pip3 install "meson==0.62.1"
 
-# Download and install gstreamer via gst-build
-
+# Download, build and install gstreamer
 cd /tmp
-git clone -b $GST_VERSION --single-branch --depth=1 https://github.com/GStreamer/gst-build
-cd gst-build
+
+# Versions older than 1.20 should use: https://github.com/GStreamer/gst-build
+# reference: https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/195
+git clone -b $GST_VERSION --single-branch --depth=1 https://gitlab.freedesktop.org/gstreamer/gstreamer
+cd gstreamer
 
 meson builddir \
     --buildtype=release \
+    -Dlibav=enabled \
+    -Dugly=enabled \
+    -Dbad=enabled \
     -Domx=enabled \
+    -Dgst-omx:target=generic \
     -Dpython=enabled \
     -Drtsp_server=enabled \
-    -Dgst-omx:target=generic \
 
 ninja install -C builddir
 
@@ -73,9 +80,9 @@ apt -y autoremove
 apt -y clean
 
 # Make sure that we have the necessary elements for stream to work
-gst-inspect-1.0 \
-    rtph264pay \
-    udpsink \
-    videoconvert \
-    videotestsrc \
-    x264enc
+# gst-inspect-1.0 \
+#    rtph264pay \
+#    udpsink \
+#    videoconvert \
+#    videotestsrc \
+#    x264enc
