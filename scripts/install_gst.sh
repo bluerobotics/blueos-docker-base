@@ -68,17 +68,13 @@ meson builddir \
     -Drtsp_server=enabled \
     -Dugly=enabled
 
-ninja install -C builddir
+DESTDIR=/artifact ninja install -C builddir
 
 # Install RTSP helpers
-install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-mp4 /usr/bin/gst-rtsp-mp4
-install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-launch /usr/bin/gst-rtsp-launch
-install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock /usr/bin/gst-rtsp-netclock
-install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock-client /usr/bin/gst-rtsp-netclock-client
-
-# Remove build files and dependencies
-cd /tmp
-rm -rf gst-build
+install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-mp4 /artifact/usr/local/bin/gst-rtsp-mp4
+install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-launch /artifact/usr/local/bin/gst-rtsp-launch
+install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock /artifact/usr/local/bin/gst-rtsp-netclock
+install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock-client /artifact/usr/local/bin/gst-rtsp-netclock-client
 
 pip3 uninstall -y meson
 
