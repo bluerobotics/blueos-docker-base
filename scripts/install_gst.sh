@@ -43,7 +43,7 @@ apt update
 apt -y install ${BUILD_TOOLS[*]}
 apt -y install ${BUILD_LIBS[*]}
 
-pip3 install "meson==0.58"
+pip3 install "meson==0.62.1"
 
 # Download and install gstreamer via gst-build
 
