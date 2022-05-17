@@ -45,10 +45,18 @@ cd gst-build
 
 meson builddir \
     --buildtype=release \
+    -Dbad=enabled \
+    -Dbase=enabled \
+    -Ddevtools=enabled \
+    -Dgpl=enabled \
+    -Dgst-omx:target=generic \
+    -Dgst-plugins-base:app=enabled \
+    -Dgst-plugins-ugly:x264=enabled \
+    -Dlibav=enabled \
     -Domx=enabled \
     -Dpython=enabled \
     -Drtsp_server=enabled \
-    -Dgst-omx:target=generic \
+    -Dugly=enabled
 
 ninja install -C builddir
 
