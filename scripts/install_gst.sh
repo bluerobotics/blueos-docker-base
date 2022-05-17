@@ -45,11 +45,12 @@ apt -y install ${BUILD_LIBS[*]}
 
 pip3 install "meson==0.62.1"
 
-# Download and install gstreamer via gst-build
+# Download and install Gstreamer
 
 cd /tmp
-git clone -b $GST_VERSION --single-branch --depth=1 https://github.com/GStreamer/gst-build
-cd gst-build
+git clone --branch $GST_VERSION --single-branch --depth=1 \
+    https://gitlab.freedesktop.org/gstreamer/gstreamer.git
+cd gstreamer
 
 meson builddir \
     --buildtype=release \
