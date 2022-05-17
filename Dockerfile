@@ -13,6 +13,7 @@ RUN apt install -y --no-install-recommends \
     dnsutils \
     exa \
     file \
+    gdbserver \
     htop \
     i2c-tools \
     iproute2 \
