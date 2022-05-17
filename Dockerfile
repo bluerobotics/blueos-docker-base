@@ -25,8 +25,7 @@ RUN apt update && \
 RUN mkdir -p /home/pi
 
 # Install necessary tools for basic usage
-RUN apt update && \
-    apt install -y --no-install-recommends \
+RUN apt install -y --no-install-recommends \
     bat \
     dnsutils \
     exa \
