@@ -1,9 +1,9 @@
 FROM python:3.9-slim-bullseye AS build_gstreamer
 
 # Build Gstreamer
-COPY ./scripts/install_gst.sh /install_gst.sh
+COPY ./scripts/build_gst.sh /build_gst.sh
 RUN GST_VERSION=1.20.2 \
-    ./install_gst.sh && rm /install_gst.sh
+    ./build_gst.sh && rm /build_gst.sh
 
 # Build Webrtcsink
 COPY ./scripts/build_webrtcsink.sh /build_webrtcsink.sh

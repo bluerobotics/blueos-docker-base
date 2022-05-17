@@ -45,7 +45,7 @@ apt -y install ${BUILD_LIBS[*]}
 
 pip3 install "meson==0.62.1"
 
-# Download and install Gstreamer
+# Download, build, and pre-install Gstreamer
 
 cd /tmp
 git clone --branch $GST_VERSION --single-branch --depth=1 \
@@ -68,9 +68,10 @@ meson builddir \
     -Drtsp_server=enabled \
     -Dugly=enabled
 
+# This pre-installation folder will be accessed by other stages of the docker build.
 DESTDIR=/artifact ninja install -C builddir
 
-# Install RTSP helpers
+# Pre-install RTSP helpers
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-mp4 /artifact/usr/local/bin/gst-rtsp-mp4
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-launch /artifact/usr/local/bin/gst-rtsp-launch
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock /artifact/usr/local/bin/gst-rtsp-netclock
