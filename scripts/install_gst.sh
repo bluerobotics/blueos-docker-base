@@ -76,12 +76,6 @@ install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-launch /artifa
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock /artifact/usr/local/bin/gst-rtsp-netclock
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock-client /artifact/usr/local/bin/gst-rtsp-netclock-client
 
-pip3 uninstall -y meson
-
-apt -y remove ${BUILD_TOOLS[*]}
-apt -y autoremove
-apt -y clean
-
 # Make sure that we have the necessary elements for stream to work
 gst-inspect-1.0 \
     rtph264pay \
