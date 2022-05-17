@@ -5,6 +5,12 @@ COPY ./scripts/install_gst.sh /install_gst.sh
 RUN GST_VERSION=1.20.2 \
     ./install_gst.sh && rm /install_gst.sh
 
+# Build Webrtcsink
+COPY ./scripts/build_webrtcsink.sh /build_webrtcsink.sh
+RUN WEBRTCSINK_VERSION="55d30db53bb3931f6477b6c1bad4de2a5ec5f7e4" \
+    ./build_webrtcsink.sh && rm /build_webrtcsink.sh
+
+
 FROM python:3.9-slim-bullseye AS main
 
 # Install Gstreamer
