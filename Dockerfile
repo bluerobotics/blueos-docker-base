@@ -9,12 +9,24 @@ FROM python:3.9-slim-bullseye AS main
 
 # Install Gstreamer
 COPY --from=build_gstreamer /artifact/. /
+# Install necessary libs
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    libavcodec58 \
+    libavfilter7 \
+    libavformat58 \
+    libavutil56 \
+    libglib2.0-0 \
+    libv4l-0 \
+    libvpx6 \
+    libx264-160
 
 # Create default user folder
 RUN mkdir -p /home/pi
 
 # Install necessary tools for basic usage
-RUN apt install -y --no-install-recommends \
+RUN apt update && \
+    apt install -y --no-install-recommends \
     bat \
     dnsutils \
     exa \
@@ -24,6 +36,7 @@ RUN apt install -y --no-install-recommends \
     iproute2 \
     iputils-ping \
     jq \
+    less \
     locate \
     lsof \
     nano \
@@ -34,7 +47,9 @@ RUN apt install -y --no-install-recommends \
     tmux \
     unzip \
     watch \
-    wget
+    wget && \
+    apt autoremove -y && \
+    apt clean
 
 RUN RCFILE_PATH="/etc/blueosrc" \
     && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
