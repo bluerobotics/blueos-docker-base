@@ -75,11 +75,3 @@ install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-mp4 /artifact/
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-launch /artifact/usr/local/bin/gst-rtsp-launch
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock /artifact/usr/local/bin/gst-rtsp-netclock
 install -Dm755 builddir/subprojects/gst-rtsp-server/examples/test-netclock-client /artifact/usr/local/bin/gst-rtsp-netclock-client
-
-# Make sure that we have the necessary elements for stream to work
-gst-inspect-1.0 \
-    rtph264pay \
-    udpsink \
-    videoconvert \
-    videotestsrc \
-    x264enc
