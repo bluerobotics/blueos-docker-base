@@ -66,4 +66,5 @@ RUN export GST_PLUGIN_SYSTEM_PATH=$(dirname $(find /usr/local/lib -name libgstwe
 RUN RCFILE_PATH="/etc/blueosrc" \
     && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
     && echo "alias ls=exa" >> $RCFILE_PATH \
-    && echo "source $RCFILE_PATH" >> /etc/bash.bashrc
+    && echo "source $RCFILE_PATH" >> /etc/bash.bashrc \
+    && echo "export GST_PLUGIN_SYSTEM_PATH=$(dirname $(find /usr/local/lib -name libgstwebrtc-1.0.so | head -n1))" >> /etc/bash.bashrc
