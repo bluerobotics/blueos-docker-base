@@ -17,16 +17,24 @@ BUILD_TOOLS=(
     flex
     g++
     git
-    nasm
     ninja-build
     pkg-config
 )
 
 BUILD_LIBS=(
+    libavcodec-dev
+    libavfilter-dev
+    libavformat-dev
+    libavutil-dev
+    libc6-dev
     libgirepository1.0-dev
-    libglib2.0-0
-    libgtest-dev
-    libmount-dev
+    libglib2.0-dev
+    libssl-dev
+    libv4l-dev
+    libvpx-dev
+    libx264-dev
+    libxml2-dev
+    python-gi-dev
 )
 
 # Install necessary dependencies
