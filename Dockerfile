@@ -1,11 +1,17 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.9-slim-bullseye AS build_gstreamer
+
+# Build Gstreamer
+COPY ./scripts/install_gst.sh /install_gst.sh
+RUN GST_VERSION=1.20.2 \
+    ./install_gst.sh && rm /install_gst.sh
+
+FROM python:3.9-slim-bullseye AS main
+
+# Install Gstreamer
+COPY --from=build_gstreamer /artifact/. /
 
 # Create default user folder
 RUN mkdir -p /home/pi
-
-# Install gstreamer
-COPY ./scripts/install_gst.sh /install_gst.sh
-RUN GST_VERSION=1.18.5 ./install_gst.sh && rm /install_gst.sh
 
 # Install necessary tools for basic usage
 RUN apt install -y --no-install-recommends \
