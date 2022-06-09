@@ -15,29 +15,47 @@ RUN mkdir -p /home/pi
 # Install Pre-built GStreamer
 COPY --from=build_gstreamer /artifacts/. /.
 
-# Install necessary tools for basic usage
-RUN apt install -y --no-install-recommends \
-    bat \
-    dnsutils \
-    exa \
-    file \
-    gdbserver \
-    htop \
-    i2c-tools \
-    iproute2 \
-    iputils-ping \
-    jq \
-    locate \
-    lsof \
-    nano \
-    parallel \
-    screen \
-    ssh \
-    sshpass \
-    tmux \
-    unzip \
-    watch \
-    wget
+# Install necessary tools and libs for basic use
+RUN apt update && \
+    apt install --assume-yes --no-install-recommends \
+    # TOOLS:
+        bat \
+        dnsutils \
+        exa \
+        file \
+        gdbserver \
+        htop \
+        i2c-tools \
+        iproute2 \
+        iputils-ping \
+        jq \
+        locate \
+        lsof \
+        nano \
+        parallel \
+        screen \
+        ssh \
+        sshpass \
+        tmux \
+        unzip \
+        watch \
+        wget \
+    # LIBS:
+        libatm1 \
+        libavcodec58 \
+        libavfilter7 \
+        libavformat58 \
+        libavutil56 \
+        libdv4 \
+        libglib2.0-0 \
+        libjson-glib-1.0-0 \
+        libsrtp2-1 \
+        libtcl8.6 \
+        libtk8.6 \
+        libv4l-0 \
+        libvpx6 \
+        libx264-160 \
+        libxml2
 
 RUN RCFILE_PATH="/etc/blueosrc" \
     && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
