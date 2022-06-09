@@ -9,8 +9,13 @@ RUN GST_VERSION=1.20.2 \
 FROM python:3.9-slim-bullseye AS main
 
 
-# Create default user folder
-RUN mkdir -p /home/pi
+# Setup the user environment
+RUN mkdir -p /home/pi && \
+    RCFILE_PATH="/etc/blueosrc" && \
+    echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH && \
+    echo "alias ls=exa" >> $RCFILE_PATH && \
+    echo "cd ~" >> $RCFILE_PATH && \
+    echo "source $RCFILE_PATH" >> /etc/bash.bashrc
 
 # Install necessary tools and libs for basic use
 RUN apt update && \
@@ -69,8 +74,3 @@ RUN ./build_webrtcsink.sh && rm /build_webrtcsink.sh
 COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig && \
     /inspect_gst_plugins.sh && rm /inspect_gst_plugins.sh
-
-RUN RCFILE_PATH="/etc/blueosrc" \
-    && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
-    && echo "alias ls=exa" >> $RCFILE_PATH \
-    && echo "source $RCFILE_PATH" >> /etc/bash.bashrc
