@@ -12,9 +12,6 @@ FROM python:3.9-slim-bullseye AS main
 # Create default user folder
 RUN mkdir -p /home/pi
 
-# Install Pre-built GStreamer
-COPY --from=build_gstreamer /artifacts/. /.
-
 # Install necessary tools and libs for basic use
 RUN apt update && \
     apt install --assume-yes --no-install-recommends \
@@ -60,6 +57,13 @@ RUN apt update && \
         libvpx6 \
         libx264-160 \
         libxml2
+
+# Install Pre-built GStreamer
+COPY --from=build_gstreamer /artifacts/. /.
+
+# Install Pre-Built WebRTCSink
+COPY ./scripts/build_webrtcsink.sh /build_webrtcsink.sh
+RUN ./build_webrtcsink.sh && rm /build_webrtcsink.sh
 
 RUN RCFILE_PATH="/etc/blueosrc" \
     && echo "alias cat='batcat --paging=never'" >> $RCFILE_PATH \
