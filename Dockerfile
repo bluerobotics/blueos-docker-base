@@ -20,6 +20,7 @@ RUN apt update && \
     apt install --assume-yes --no-install-recommends \
     # TOOLS:
         bat \
+        curl \
         dnsutils \
         exa \
         file \
@@ -29,14 +30,17 @@ RUN apt update && \
         iproute2 \
         iputils-ping \
         jq \
+        less \
         locate \
         lsof \
         nano \
         parallel \
+        rsync \
         screen \
         ssh \
         sshpass \
         tmux \
+        tree \
         unzip \
         watch \
         wget \
