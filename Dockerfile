@@ -2,7 +2,7 @@ FROM python:3.9-slim-bullseye AS build_gstreamer
 
 # Build and Pre-Install Gstreamer
 COPY ./scripts/build_gst.sh /build_gst.sh
-RUN GST_VERSION=1.20.2 \
+RUN GST_VERSION=1.20.2 LIBCAMERA_VERSION=ba6435930f08e802cffc688d90f156a8959a0f86 \
     ./build_gst.sh && rm /build_gst.sh
 
 

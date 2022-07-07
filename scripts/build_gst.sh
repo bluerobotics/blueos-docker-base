@@ -15,6 +15,9 @@ GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-true}
+LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
+LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
+LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
 
 # Here we carefully select what we want to build/install. Even though several
@@ -73,6 +76,22 @@ if [ $GST_OMX_ENABLED == true ]; then
         )
     fi
 fi
+if [ $LIBCAMERA_ENABLED == true ]; then
+    GST_MESON_OPTIONS+=(
+        -D custom_subprojects=libcamera
+        -D libcamera:cpp_std=c++17
+        -D libcamera:cam=disabled
+        -D libcamera:documentation=disabled
+        -D libcamera:gstreamer=enabled
+        -D libcamera:ipas=raspberrypi
+        -D libcamera:pipelines=raspberrypi
+        -D libcamera:pycamera=disabled
+        -D libcamera:qcam=disabled
+        -D libcamera:test=false
+        -D libcamera:tracing=disabled
+        -D libcamera:v4l2=true
+    )
+fi
 
 # These are the tools needed to build GStreamer
 GST_BUILD_TOOLS_DEFAULT=(
@@ -130,12 +149,25 @@ GST_BUILD_LIBS_DEFAULT=(
     libxml2-dev
 )
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
+if [ $LIBCAMERA_ENABLED == true ]; then
+    GST_BUILD_LIBS+=(
+        libgnutls28-dev
+        libboost-dev
+    )
+fi
 
 GST_PIP_DEPENDENCIES=(
     "mako==1.2.0"
     "markdown==3.3.7"
     "meson==0.63"
 )
+if [ $LIBCAMERA_ENABLED == true ]; then
+    GST_PIP_DEPENDENCIES+=(
+        "jinja2==3.1.2"
+        "ply==3.11"
+        "pyyaml==6.0"
+    )
+fi
 
 cat << EOF
 Going to build and install GStreamer in 5 seconds...
@@ -174,6 +206,15 @@ fi
 git clone --branch $GST_VERSION --single-branch --depth=1 \
     $GST_GIT_URL gstreamer
 cd gstreamer
+
+if [ $LIBCAMERA_ENABLED == true ]; then
+    cat << EOF > subprojects/libcamera.wrap
+[wrap-git]
+directory=libcamera
+url=$LIBCAMERA_GIT_URL
+revision=$LIBCAMERA_VERSION
+EOF
+fi
 
 GST_BUILD_DIR=builddir
 meson $GST_BUILD_DIR ${GST_MESON_OPTIONS[@]}
