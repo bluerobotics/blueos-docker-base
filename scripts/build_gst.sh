@@ -131,6 +131,12 @@ GST_BUILD_LIBS_DEFAULT=(
 )
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
 
+GST_PIP_DEPENDENCIES=(
+    "mako==1.2.0"
+    "markdown==3.3.7"
+    "meson==0.63"
+)
+
 cat << EOF
 Going to build and install GStreamer in 5 seconds...
 GIT: $GST_GIT_URL
@@ -143,6 +149,8 @@ GStreamer tool dependencies to be installed from APT:
     ${GST_BUILD_TOOLS[@]}
 GStreamer library dependencies to be installed from APT:
     ${GST_BUILD_LIBS[@]}
+GStreamer dependencies to be installed from PIP:
+    ${GST_PIP_DEPENDENCIES[@]}
 EOF
 sleep 5s;
 
@@ -151,7 +159,7 @@ sleep 5s;
 apt update
 apt install --assume-yes --no-install-recommends --mark-auto \
     ${GST_BUILD_TOOLS[@]} ${GST_BUILD_LIBS[@]}
-pip3 install "meson==0.62.2" "mako==1.2.0" "markdown==3.3.7"
+pip3 install ${GST_PIP_DEPENDENCIES[@]}
 
 # Download IL headers if needed:
 if [ -n "$USERLAND_PATH" ]; then
