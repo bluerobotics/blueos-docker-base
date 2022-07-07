@@ -11,7 +11,7 @@ set -e
 # Versions older than 1.20 should use: https://github.com/GStreamer/gst-build
 # reference: https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/195
 GST_GIT_URL=${GST_GIT_URL:-https://gitlab.freedesktop.org/gstreamer/gstreamer.git}
-GST_VERSION=${GST_VERSION:-master}
+GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-true}
