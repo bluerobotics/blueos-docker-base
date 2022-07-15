@@ -19,6 +19,12 @@ LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
+# RPICAM is only supported for arm
+if [[ $ARCH == arm* ]]; then
+    RPICAM_ENABLED=${RPICAM_ENABLED:-true}
+else
+    RPICAM_ENABLED=false
+fi
 
 # Here we carefully select what we want to build/install. Even though several
 # of the listed options are disabled by default, it is interesting to have
@@ -92,6 +98,14 @@ if [ $LIBCAMERA_ENABLED == true ]; then
         -D libcamera:v4l2=true
     )
 fi
+if [ $RPICAM_ENABLED == true ]; then
+    GST_MESON_OPTIONS+=(
+        -D gst-plugins-good:rpicamsrc=enabled
+        -D gst-plugins-good:rpi-header-dir=$GST_INSTALL_DIR/opt/vc/include
+        -D gst-plugins-good:rpi-lib-dir=$GST_INSTALL_DIR/opt/vc/lib
+        -D gst-plugins-good:replaygain=disabled
+    )
+fi
 
 # These are the tools needed to build GStreamer
 GST_BUILD_TOOLS_DEFAULT=(
@@ -104,6 +118,7 @@ GST_BUILD_TOOLS_DEFAULT=(
     g++
     gcc
     git
+    make
     ninja-build
     pkg-config
     python-gi-dev
@@ -193,11 +208,19 @@ apt install --assume-yes --no-install-recommends --mark-auto \
     ${GST_BUILD_TOOLS[@]} ${GST_BUILD_LIBS[@]}
 pip3 install ${GST_PIP_DEPENDENCIES[@]}
 
-# Download IL headers if needed:
+# Download and install IL headers if needed:
 if [ -n "$USERLAND_PATH" ]; then
     git clone https://github.com/raspberrypi/userland.git $USERLAND_PATH
     cd $USERLAND_PATH
     git checkout c4fd1b8986c6d6d4ae5cd51e65a8bbeb495dfa4e
+
+    sed -i "s/sudo//g" buildme  # remove any sudo call
+    ./buildme $GST_INSTALL_DIR
+
+    # Let linux aware of userland libs, needed in runtime
+    mkdir -p $GST_INSTALL_DIR/etc/ld.so.conf.d/
+    echo "/opt/vc/lib" > $GST_INSTALL_DIR/etc/ld.so.conf.d/userland.conf
+
     cd $OLDPWD
 fi
 
