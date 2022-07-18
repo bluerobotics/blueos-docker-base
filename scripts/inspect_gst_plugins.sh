@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+function clear_cache {
+    rm -rf ~/.cache/gstreamer-1.0/registry.*.bin
+}
+
 PLUGINS=(
     decodebin3
     h264parse
@@ -18,6 +22,44 @@ PLUGINS=(
     x264enc
 )
 
+ARCH=${ARCH:-$(uname -m)}
+GST_OMX_ENABLED=${GST_OMX_ENABLED:-true}
+LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
+if [[ $ARCH == arm* ]]; then
+    RPICAM_ENABLED=${RPICAM_ENABLED:-true}
+
+    if [ $RPICAM_ENABLED == true ] && [ -f /dev/vchiq ]; then
+        # This test needs to be run in a Raspberry Pi hardware to work.
+        PLUGINS+=(
+            rpicamsrc
+        )
+    fi
+
+    if [ $GST_OMX_ENABLED == true ]; then
+        PLUGINS+=(
+            omxh264enc
+        )
+    fi
+
+else
+    RPICAM_ENABLED=false
+fi
+
+if [ $GST_OMX_ENABLED == true ]; then
+    PLUGINS+=(
+        omx
+    )
+fi
+
+if [ $LIBCAMERA_ENABLED == true ]; then
+    PLUGINS+=(
+        libcamera
+        libcamerasrc
+    )
+fi
+
+clear_cache
+
 # Here we are individually checking for each plugin because gst-inspect-1.0 only returns the error
 # code for the last item when a list is passed.
 errors=0
@@ -35,4 +77,7 @@ done
 if [ $errors -gt 0 ]; then
     echo "Failed: found $errors errors."
 fi
+
+clear_cache
+
 exit $errors
