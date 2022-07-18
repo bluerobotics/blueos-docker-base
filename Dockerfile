@@ -73,4 +73,6 @@ RUN ./build_webrtcsink.sh && rm /build_webrtcsink.sh
 # Update links for the installed libraries and check if GStreamer is setup correctly
 COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig && \
-    /inspect_gst_plugins.sh && rm /inspect_gst_plugins.sh
+    /inspect_gst_plugins.sh && \
+    mkdir -p /home/pi/tools && \
+    mv /inspect_gst_plugins.sh /home/pi/tools/.
