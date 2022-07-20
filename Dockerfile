@@ -76,3 +76,7 @@ RUN ldconfig && \
     /inspect_gst_plugins.sh && \
     mkdir -p /home/pi/tools && \
     mv /inspect_gst_plugins.sh /home/pi/tools/.
+
+# Install viu
+COPY ./scripts/install_viu.sh /install_viu.sh
+RUN ./install_viu.sh && rm /install_viu.sh
