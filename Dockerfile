@@ -35,6 +35,7 @@ RUN apt update && \
         less \
         locate \
         lsof \
+        mtr \
         nano \
         parallel \
         rsync \
