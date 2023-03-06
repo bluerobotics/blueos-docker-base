@@ -212,7 +212,7 @@ pip3 install ${GST_PIP_DEPENDENCIES[@]}
 if [ -n "$USERLAND_PATH" ]; then
     git clone https://github.com/raspberrypi/userland.git $USERLAND_PATH
     cd $USERLAND_PATH
-    git checkout c4fd1b8986c6d6d4ae5cd51e65a8bbeb495dfa4e
+    git checkout 54fd97ae4066a10b6b02089bc769ceed328737e0
 
     sed -i "s/sudo//g" buildme  # remove any sudo call
     ./buildme $GST_INSTALL_DIR
