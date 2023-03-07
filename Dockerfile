@@ -18,6 +18,7 @@ RUN mkdir -p /home/pi && \
     echo "source $RCFILE_PATH" >> /etc/bash.bashrc
 
 # Install necessary tools and libs for basic use
+# Note: Remove iotop if htop is newer 3.2+
 RUN apt update && \
     apt install --assume-yes --no-install-recommends \
     # TOOLS:
@@ -29,6 +30,7 @@ RUN apt update && \
         gdbserver \
         htop \
         i2c-tools \
+        iotop \
         iproute2 \
         iputils-ping \
         jq \
