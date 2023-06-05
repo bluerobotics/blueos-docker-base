@@ -69,10 +69,6 @@ RUN apt update && \
 # Install Pre-built GStreamer
 COPY --from=build_gstreamer /artifacts/. /.
 
-# Install Pre-Built WebRTCSink
-COPY ./scripts/build_webrtcsink.sh /build_webrtcsink.sh
-RUN ./build_webrtcsink.sh && rm /build_webrtcsink.sh
-
 # Update links for the installed libraries and check if GStreamer is setup correctly
 COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig && \
