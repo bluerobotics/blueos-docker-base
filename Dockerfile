@@ -23,6 +23,7 @@ RUN apt update && \
     apt install --assume-yes --no-install-recommends \
     # TOOLS:
         bat \
+        bzip2 \
         curl \
         dnsutils \
         exa \
