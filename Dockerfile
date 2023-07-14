@@ -83,3 +83,6 @@ RUN ./install_viu.sh && rm /install_viu.sh
 
 COPY ./scripts/install_gping.sh /install_gping.sh
 RUN ./install_gping.sh && rm /install_gping.sh
+
+COPY ./scripts/install_simple_http_server.sh /install_simple_http_server.sh
+RUN ./install_simple_http_server.sh && rm /install_simple_http_server.sh
