@@ -56,6 +56,7 @@ RUN apt update && \
         libavfilter7 \
         libavformat58 \
         libavutil56 \
+        libde265-0 \
         libdv4 \
         libglib2.0-0 \
         libjson-glib-1.0-0 \
@@ -65,6 +66,7 @@ RUN apt update && \
         libv4l-0 \
         libvpx6 \
         libx264-160 \
+        libx265-192 \
         libxml2
 
 # Install Pre-built GStreamer
