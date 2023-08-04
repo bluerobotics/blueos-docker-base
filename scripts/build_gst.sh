@@ -39,8 +39,10 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D doc=disabled
     -D ges=disabled
     -D gpl=enabled
+    -D gst-plugins-bad:libde265=enabled
     -D gst-plugins-bad:openh264=disabled
     -D gst-plugins-bad:rtp=enabled
+    -D gst-plugins-bad:x265=enabled
     -D gst-plugins-base:tcp=enabled
     -D gst-plugins-good:cairo=disabled
     -D gst-plugins-good:jpeg=enabled
@@ -138,6 +140,7 @@ GST_BUILD_LIBS_DEFAULT=(
     libavutil-dev
     libc-dev
     libcgroup-dev
+    libde265-dev
     libdrm-dev
     libdv4-dev
     libfontconfig-dev
@@ -161,6 +164,7 @@ GST_BUILD_LIBS_DEFAULT=(
     libvorbis-dev
     libvpx-dev
     libx264-dev
+    libx265-dev
     libxml2-dev
 )
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
