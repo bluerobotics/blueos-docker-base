@@ -48,6 +48,7 @@ RUN apt update && \
         tmux \
         tree \
         unzip \
+        vim \
         watch \
         wget \
     # LIBS:
