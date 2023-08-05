@@ -15,6 +15,7 @@ GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-true}
+GST_PYTHON_ENABLED=${GST_PYTHON_ENABLED:-true}
 LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
@@ -126,6 +127,15 @@ GST_BUILD_TOOLS_DEFAULT=(
     python-gi-dev
 )
 GST_BUILD_TOOLS=${GST_BUILD_TOOLS:-${GST_BUILD_TOOLS_DEFAULT[@]}}
+if [ $GST_PYTHON_ENABLED == true ]; then
+    GST_BUILD_TOOLS+=(
+        build-essential
+        llvm
+        tk-dev
+        wget
+        xz-utils
+    )
+fi
 
 # Although to build GStreamer essentially we need only a few libraries, here we
 # are actively providing several libraries which would otherwise be compiled
@@ -174,6 +184,18 @@ if [ $LIBCAMERA_ENABLED == true ]; then
         libboost-dev
     )
 fi
+if [ $GST_PYTHON_ENABLED == true ]; then
+    GST_BUILD_LIBS+=(
+        libbz2-dev
+        libcairo2-dev
+        libgirepository1.0-dev
+        libncurses5-dev
+        libncursesw5-dev
+        libreadline-dev
+        libsqlite3-dev
+        zlib1g-dev
+    )
+fi
 
 GST_PIP_DEPENDENCIES=(
     "mako==1.2.0"
@@ -185,6 +207,11 @@ if [ $LIBCAMERA_ENABLED == true ]; then
         "jinja2==3.1.2"
         "ply==3.11"
         "pyyaml==6.0"
+    )
+fi
+if [ $GST_PYTHON_ENABLED == true ]; then
+    GST_PIP_DEPENDENCIES+=(
+        "pygobject==3.44"
     )
 fi
 
