@@ -56,7 +56,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D libav=enabled
     -D nls=disabled
     -D orc=disabled
-    -D python=disabled
+    -D python=$( [[ "$GST_PYTHON_ENABLED" == true ]] && echo enabled || echo disabled )
     -D qt5=disabled
     -D rs=disabled
     -D rtsp_server=enabled
