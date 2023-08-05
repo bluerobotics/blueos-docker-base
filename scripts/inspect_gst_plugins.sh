@@ -5,21 +5,43 @@ function clear_cache {
 }
 
 PLUGINS=(
+    appsink
+    capsfilter
     decodebin3
     h264parse
+    h265parse
+    identity
+    jpegdec
     jpegenc
+    jpegparse
     libav
+    libde265dec
     multiudpsink
+    proxysink
+    proxysrc
     queue
+    rtph264depay
     rtph264pay
+    rtph265depay
+    rtph265pay
+    rtpjpegdepay
+    rtpjpegpay
+    rtpvrawdepay
+    rtpvrawpay
+    shmsink
+    shmsrc
     srtpenc
     tcpserversink
+    tee
+    timeoverlay
+    udpsrc
     v4l2src
     videoconvert
     videotestsrc
     vp9enc
     webrtcbin
     x264enc
+    x265enc
 )
 
 ARCH=${ARCH:-$(uname -m)}
