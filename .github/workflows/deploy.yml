@@ -19,7 +19,7 @@ jobs:
         docker: [base]
         project: [companion]
         new_project: [blueos]
-        platforms: ["linux/arm/v7,linux/arm/v8,linux/amd64"]
+        platforms: ["linux/arm/v7,linux/arm64/v8,linux/amd64"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
