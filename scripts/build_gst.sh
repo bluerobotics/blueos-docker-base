@@ -19,13 +19,13 @@ LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
+if [[ $ARCH =~ ^(arm|aarch64) ]]; then ARM=true; else ARM=false; fi
 # RPICAM is only supported for arm
-if [[ $ARCH == arm* ]]; then
+if [[ $ARM == true ]]; then
     RPICAM_ENABLED=${RPICAM_ENABLED:-true}
 else
     RPICAM_ENABLED=false
 fi
-
 # Here we carefully select what we want to build/install. Even though several
 # of the listed options are disabled by default, it is interesting to have
 # them here to be documented.
@@ -70,11 +70,7 @@ if [ $GST_OMX_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
         -D omx=enabled
     )
-    if [[ $ARCH == x86_64 ]]; then
-        GST_MESON_OPTIONS+=(
-            -D gst-omx:target=generic
-        )
-    elif [[ $ARCH == arm* ]]; then
+    if [[ $ARM == true ]]; then
         # To build omx for the "rpi" target, we need to provide the raspberrypi
         # IL headers:
         USERLAND_PATH=/tmp/userland
@@ -82,7 +78,11 @@ if [ $GST_OMX_ENABLED == true ]; then
             -D gst-omx:target=rpi
             -D gst-omx:header_path=$USERLAND_PATH/interface/vmcs_host/khronos/IL
         )
-    fi
+    else
+        GST_MESON_OPTIONS+=(
+            -D gst-omx:target=generic
+        )
+    fi 
 fi
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
