@@ -47,7 +47,8 @@ PLUGINS=(
 ARCH=${ARCH:-$(uname -m)}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}
 LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
-if [[ $ARCH == arm* ]]; then
+if [[ $ARCH =~ ^(arm|aarch64) ]]; then ARM=true; else ARM=false; fi
+if [[ $ARM == true ]]; then
     RPICAM_ENABLED=${RPICAM_ENABLED:-false}
 
     if [ $RPICAM_ENABLED == true ] && [ -f /dev/vchiq ]; then
