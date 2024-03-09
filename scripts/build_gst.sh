@@ -149,7 +149,6 @@ GST_BUILD_LIBS_DEFAULT=(
     libgudev-1.0-dev
     libharfbuzz-dev
     libjpeg-dev
-    libjson-glib-dev
     libogg-dev
     libopenjp2-7-dev
     libopus-dev
