@@ -14,7 +14,6 @@ PLUGINS=(
     jpegdec
     jpegenc
     jpegparse
-    libav
     libde265dec
     multiudpsink
     proxysink

@@ -55,10 +55,6 @@ RUN apt update && \
         wget \
     # LIBS:
         libatm1 \
-        libavcodec58 \
-        libavfilter7 \
-        libavformat58 \
-        libavutil56 \
         libde265-0 \
         libdv4 \
         libglib2.0-0 \

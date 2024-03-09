@@ -53,7 +53,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D gst-plugins-ugly:x264=enabled
     -D gst-rtsp-server:examples=enabled
     -D introspection=disabled
-    -D libav=enabled
+    -D libav=disabled
     -D nls=disabled
     -D orc=disabled
     -D python=disabled
@@ -134,10 +134,6 @@ GST_BUILD_TOOLS=${GST_BUILD_TOOLS:-${GST_BUILD_TOOLS_DEFAULT[@]}}
 # may not satisfy GStreamer's dependencies, like fdk_aac (2.0.2),
 # lame (3.100), libnice (0.1.18.1), libsoup (2.74.0), and sqlite3 (3.34.1).
 GST_BUILD_LIBS_DEFAULT=(
-    libavcodec-dev
-    libavfilter-dev
-    libavformat-dev
-    libavutil-dev
     libc-dev
     libcgroup-dev
     libde265-dev
