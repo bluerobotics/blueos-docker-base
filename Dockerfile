@@ -60,11 +60,18 @@ RUN apt update && \
         libavformat58 \
         libavutil56 \
         libde265-0 \
+        libdrm2 \
         libdv4 \
         libglib2.0-0 \
+        libgudev-1.0-0 \
         libjson-glib-1.0-0 \
+        libogg0 \
+        libopenjp2-7 \
+        libopus0 \
+        libpulse0 \
         libsrtp2-1 \
         libtcl8.6 \
+        libvorbis0a \
         libtk8.6 \
         libv4l-0 \
         libvpx6 \
