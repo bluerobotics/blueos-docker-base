@@ -146,6 +146,7 @@ GST_BUILD_LIBS_DEFAULT=(
     libfontconfig-dev
     libfreetype-dev
     libfribidi-dev
+    libgudev-1.0-dev
     libharfbuzz-dev
     libjpeg-dev
     libjson-glib-dev
@@ -156,6 +157,7 @@ GST_BUILD_LIBS_DEFAULT=(
     libpixman-1-dev
     libpng-dev
     libpsl-dev
+    libsoup2.4-dev
     libsrtp2-dev
     libssl-dev
     libsysprof-4-dev
@@ -166,6 +168,8 @@ GST_BUILD_LIBS_DEFAULT=(
     libx264-dev
     libx265-dev
     libxml2-dev
+    libudev-dev
+    openssl
 )
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
 if [ $LIBCAMERA_ENABLED == true ]; then
