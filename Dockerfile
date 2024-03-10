@@ -5,6 +5,7 @@ COPY ./scripts/build_gst.sh /build_gst.sh
 RUN GST_VERSION=1.24.1 \
     LIBCAMERA_VERSION=v0.2.0 LIBCAMERA_ENABLED=true \
     RPICAM_ENABLED=false \
+    GST_OMX_ENABLED=false \
     ./build_gst.sh && rm /build_gst.sh
 
 
@@ -87,7 +88,7 @@ COPY --from=build_gstreamer /artifacts/. /.
 # Update links for the installed libraries and check if GStreamer is setup correctly
 COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig && \
-    LIBCAMERA_ENABLED=true RPICAM_ENABLED=false /inspect_gst_plugins.sh && \
+    LIBCAMERA_ENABLED=true RPICAM_ENABLED=false GST_OMX_ENABLED=false /inspect_gst_plugins.sh && \
     mkdir -p /home/pi/tools && \
     mv /inspect_gst_plugins.sh /home/pi/tools/.
 
