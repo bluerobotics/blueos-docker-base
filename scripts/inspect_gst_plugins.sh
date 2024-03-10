@@ -48,7 +48,7 @@ ARCH=${ARCH:-$(uname -m)}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}
 LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
 if [[ $ARCH == arm* ]]; then
-    RPICAM_ENABLED=${RPICAM_ENABLED:-true}
+    RPICAM_ENABLED=${RPICAM_ENABLED:-false}
 
     if [ $RPICAM_ENABLED == true ] && [ -f /dev/vchiq ]; then
         # This test needs to be run in a Raspberry Pi hardware to work.

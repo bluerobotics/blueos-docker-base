@@ -20,9 +20,8 @@ LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
 # RPICAM is only supported for arm
-if [[ $ARCH == arm* ]]; then
-    RPICAM_ENABLED=${RPICAM_ENABLED:-true}
-else
+RPICAM_ENABLED=${RPICAM_ENABLED:-false}
+if [[ $ARCH != arm* ]]; then
     RPICAM_ENABLED=false
 fi
 
