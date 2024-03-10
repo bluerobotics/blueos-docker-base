@@ -63,6 +63,8 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D tests=disabled
     -D tls=enabled
     -D ugly=enabled
+    -D tools=enabled
+    -D webrtc=enabled
 )
 GST_MESON_OPTIONS=${GST_MESON_OPTIONS:-${GST_MESON_OPTIONS_DEFAULT[@]}}
 # If enabled, add OMX build configurations to the GST_MESON_OPTIONS array
