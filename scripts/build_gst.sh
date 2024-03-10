@@ -15,7 +15,7 @@ GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}
-LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
+LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}  # FIXME: libcamera is failing to build because pyyaml is not building on armv7
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
@@ -87,16 +87,18 @@ fi
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
         -D custom_subprojects=libcamera
-        -D libcamera:cpp_std=c++17
         -D libcamera:cam=disabled
+        -D libcamera:cpp_std=c++17
         -D libcamera:documentation=disabled
         -D libcamera:gstreamer=enabled
-        -D libcamera:ipas=raspberrypi
-        -D libcamera:pipelines=raspberrypi
+        -D libcamera:ipas=ipu3,rkisp1,rpi/vc4
+        -D libcamera:lc-compliance=disabled
+        -D libcamera:pipelines=auto
         -D libcamera:pycamera=disabled
         -D libcamera:qcam=disabled
         -D libcamera:test=false
         -D libcamera:tracing=disabled
+        -D libcamera:udev=enabled
         -D libcamera:v4l2=true
     )
 fi
@@ -173,8 +175,9 @@ GST_BUILD_LIBS_DEFAULT=(
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_BUILD_LIBS+=(
-        libgnutls28-dev
         libboost-dev
+        libgnutls28-dev
+        libyaml-dev
     )
 fi
 
@@ -187,7 +190,7 @@ if [ $LIBCAMERA_ENABLED == true ]; then
     GST_PIP_DEPENDENCIES+=(
         "jinja2==3.1.2"
         "ply==3.11"
-        "pyyaml==6.0"
+        "pyyaml==6.0.1"
     )
 fi
 
@@ -207,6 +210,12 @@ GStreamer dependencies to be installed from PIP:
     ${GST_PIP_DEPENDENCIES[@]}
 EOF
 sleep 5s;
+
+# Setup piwheels (piwheels.org) to avoid building some packages (pyaml, for instance), when available
+cat >/etc/pip.conf <<EOF
+[global]
+extra-index-url=https://www.piwheels.org/simple
+EOF
 
 # Install all dependencies
 
