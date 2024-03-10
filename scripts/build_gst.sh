@@ -14,7 +14,7 @@ GST_GIT_URL=${GST_GIT_URL:-https://gitlab.freedesktop.org/gstreamer/gstreamer.gi
 GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
-GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}
+GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}  # Unsupported since GStreamer 1.24.0
 LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}  # FIXME: libcamera is failing to build because pyyaml is not building on armv7
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
@@ -66,6 +66,7 @@ GST_MESON_OPTIONS_DEFAULT=(
 )
 GST_MESON_OPTIONS=${GST_MESON_OPTIONS:-${GST_MESON_OPTIONS_DEFAULT[@]}}
 # If enabled, add OMX build configurations to the GST_MESON_OPTIONS array
+# Note: GStreamer >= 1.24.0 doesn't support it, and won't recognize the `omx` property
 if [ $GST_OMX_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
         -D omx=enabled
