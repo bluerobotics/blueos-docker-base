@@ -52,7 +52,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D gst-plugins-ugly:x264=enabled
     -D gst-rtsp-server:examples=enabled
     -D introspection=disabled
-    -D libav=disabled
+    -D libav=enabled
     -D nls=disabled
     -D orc=disabled
     -D python=disabled
@@ -265,5 +265,5 @@ for file in ${GST_RTSP_HELPERS[@]}; do
 done
 
 # Clean the docker image
-rm -rf build
-apt autoremove -y
+#rm -rf build
+#apt autoremove -y
