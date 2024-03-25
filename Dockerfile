@@ -29,6 +29,7 @@ RUN apt update && \
         exa \
         file \
         gdbserver \
+        gettext \
         htop \
         i2c-tools \
         iotop \
