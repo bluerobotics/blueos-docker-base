@@ -14,15 +14,14 @@ GST_GIT_URL=${GST_GIT_URL:-https://gitlab.freedesktop.org/gstreamer/gstreamer.gi
 GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
-GST_OMX_ENABLED=${GST_OMX_ENABLED:-true}
-LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}
+GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}  # Unsupported since GStreamer 1.24.0
+LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}  # FIXME: libcamera is failing to build because pyyaml is not building on armv7
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
 # RPICAM is only supported for arm
-if [[ $ARCH == arm* ]]; then
-    RPICAM_ENABLED=${RPICAM_ENABLED:-true}
-else
+RPICAM_ENABLED=${RPICAM_ENABLED:-false}
+if [[ $ARCH != arm* ]]; then
     RPICAM_ENABLED=false
 fi
 
@@ -63,9 +62,12 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D tests=disabled
     -D tls=enabled
     -D ugly=enabled
+    -D tools=enabled
+    -D webrtc=enabled
 )
 GST_MESON_OPTIONS=${GST_MESON_OPTIONS:-${GST_MESON_OPTIONS_DEFAULT[@]}}
 # If enabled, add OMX build configurations to the GST_MESON_OPTIONS array
+# Note: GStreamer >= 1.24.0 doesn't support it, and won't recognize the `omx` property
 if [ $GST_OMX_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
         -D omx=enabled
@@ -87,16 +89,18 @@ fi
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_MESON_OPTIONS+=(
         -D custom_subprojects=libcamera
-        -D libcamera:cpp_std=c++17
         -D libcamera:cam=disabled
+        -D libcamera:cpp_std=c++17
         -D libcamera:documentation=disabled
         -D libcamera:gstreamer=enabled
-        -D libcamera:ipas=raspberrypi
-        -D libcamera:pipelines=raspberrypi
+        -D libcamera:ipas=ipu3,rkisp1,rpi/vc4
+        -D libcamera:lc-compliance=disabled
+        -D libcamera:pipelines=auto
         -D libcamera:pycamera=disabled
         -D libcamera:qcam=disabled
         -D libcamera:test=false
         -D libcamera:tracing=disabled
+        -D libcamera:udev=enabled
         -D libcamera:v4l2=true
     )
 fi
@@ -134,10 +138,6 @@ GST_BUILD_TOOLS=${GST_BUILD_TOOLS:-${GST_BUILD_TOOLS_DEFAULT[@]}}
 # may not satisfy GStreamer's dependencies, like fdk_aac (2.0.2),
 # lame (3.100), libnice (0.1.18.1), libsoup (2.74.0), and sqlite3 (3.34.1).
 GST_BUILD_LIBS_DEFAULT=(
-    libavcodec-dev
-    libavfilter-dev
-    libavformat-dev
-    libavutil-dev
     libc-dev
     libcgroup-dev
     libde265-dev
@@ -146,9 +146,9 @@ GST_BUILD_LIBS_DEFAULT=(
     libfontconfig-dev
     libfreetype-dev
     libfribidi-dev
+    libgudev-1.0-dev
     libharfbuzz-dev
     libjpeg-dev
-    libjson-glib-dev
     libogg-dev
     libopenjp2-7-dev
     libopus-dev
@@ -156,6 +156,7 @@ GST_BUILD_LIBS_DEFAULT=(
     libpixman-1-dev
     libpng-dev
     libpsl-dev
+    libsoup2.4-dev
     libsrtp2-dev
     libssl-dev
     libsysprof-4-dev
@@ -166,19 +167,22 @@ GST_BUILD_LIBS_DEFAULT=(
     libx264-dev
     libx265-dev
     libxml2-dev
+    libudev-dev
+    openssl
 )
 GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_BUILD_LIBS+=(
-        libgnutls28-dev
         libboost-dev
+        libgnutls28-dev
+        libyaml-dev
     )
 fi
 
 GST_PIP_DEPENDENCIES=(
     "mako==1.2.0"
     "markdown==3.3.7"
-    "meson==0.63"
+    "meson==1.3.2"
 )
 if [ $LIBCAMERA_ENABLED == true ]; then
     GST_PIP_DEPENDENCIES+=(
@@ -244,7 +248,7 @@ EOF
 fi
 
 GST_BUILD_DIR=builddir
-meson $GST_BUILD_DIR ${GST_MESON_OPTIONS[@]}
+meson setup ${GST_MESON_OPTIONS[@]} $GST_BUILD_DIR
 
 DESTDIR=$GST_INSTALL_DIR ninja install -C $GST_BUILD_DIR
 
@@ -261,5 +265,5 @@ for file in ${GST_RTSP_HELPERS[@]}; do
 done
 
 # Clean the docker image
-rm -rf build
-apt autoremove -y
+#rm -rf build
+#apt autoremove -y

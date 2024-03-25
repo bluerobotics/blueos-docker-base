@@ -2,7 +2,10 @@ FROM python:3.11.7-slim-bullseye AS build_gstreamer
 
 # Build and Pre-Install Gstreamer
 COPY ./scripts/build_gst.sh /build_gst.sh
-RUN GST_VERSION=1.22.3 LIBCAMERA_VERSION=v0.0.4 \
+RUN GST_VERSION=1.24.1 \
+    LIBCAMERA_VERSION=v0.2.0 LIBCAMERA_ENABLED=false \
+    RPICAM_ENABLED=false \
+    GST_OMX_ENABLED=false \
     ./build_gst.sh && rm /build_gst.sh
 
 
@@ -54,16 +57,19 @@ RUN apt update && \
         wget \
     # LIBS:
         libatm1 \
-        libavcodec58 \
-        libavfilter7 \
-        libavformat58 \
-        libavutil56 \
         libde265-0 \
+        libdrm2 \
         libdv4 \
         libglib2.0-0 \
+        libgudev-1.0-0 \
         libjson-glib-1.0-0 \
+        libogg0 \
+        libopenjp2-7 \
+        libopus0 \
+        libpulse0 \
         libsrtp2-1 \
         libtcl8.6 \
+        libvorbis0a \
         libtk8.6 \
         libv4l-0 \
         libvpx6 \
@@ -77,7 +83,7 @@ COPY --from=build_gstreamer /artifacts/. /.
 # Update links for the installed libraries and check if GStreamer is setup correctly
 COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig && \
-    /inspect_gst_plugins.sh && \
+    LIBCAMERA_ENABLED=false RPICAM_ENABLED=false GST_OMX_ENABLED=false /inspect_gst_plugins.sh && \
     mkdir -p /home/pi/tools && \
     mv /inspect_gst_plugins.sh /home/pi/tools/.
 
