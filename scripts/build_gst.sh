@@ -34,6 +34,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     --buildtype=release
     --strip
     -D bad=enabled
+    -D build-tools-source=system
     -D devtools=enabled
     -D doc=disabled
     -D ges=disabled
