@@ -126,6 +126,7 @@ GST_BUILD_TOOLS_DEFAULT=(
     gcc
     git
     make
+    nasm
     ninja-build
     pkg-config
     python-gi-dev
