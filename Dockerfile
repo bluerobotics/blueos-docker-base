@@ -20,6 +20,9 @@ RUN mkdir -p /home/pi && \
     echo "cd ~" >> $RCFILE_PATH && \
     echo "source $RCFILE_PATH" >> /etc/bash.bashrc
 
+# Add backports
+RUN echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" | tee -a /etc/apt/sources.list
+
 # Install necessary tools and libs for basic use
 # Note: Remove iotop if htop is newer 3.2+
 RUN apt update && \
@@ -76,6 +79,11 @@ RUN apt update && \
         libvorbis0a \
         libtk8.6 \
         libv4l-0 \
+        libva-drm2/bullseye-backports \
+        libva-glx2/bullseye-backports \
+        libva-wayland2/bullseye-backports \
+        libva-x11-2/bullseye-backports \
+        libva2/bullseye-backports \
         libvpx6 \
         libyaml-0-2 \
         libx264-160 \
