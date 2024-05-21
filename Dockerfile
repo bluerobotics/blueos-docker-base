@@ -88,7 +88,9 @@ RUN apt update && \
         libyaml-0-2 \
         libx264-160 \
         libx265-192 \
-        libxml2
+        libxml2 \
+    # Clean it
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Pre-built GStreamer
 COPY --from=build_gstreamer /artifacts/. /.
