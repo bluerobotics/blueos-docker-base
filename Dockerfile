@@ -36,17 +36,20 @@ RUN apt update && \
         file \
         gdbserver \
         gettext \
+        hostapd \
         htop \
         i2c-tools \
         iotop \
         iproute2 \
         iputils-ping \
+        iw \
         jq \
         less \
         locate \
         lsof \
         mtr \
         nano \
+        net-tools \
         parallel \
         rsync \
         screen \
