@@ -42,6 +42,7 @@ RUN apt update && \
         i2c-tools \
         iotop \
         iproute2 \
+        iperf3 \
         iputils-ping \
         iw \
         jq \
