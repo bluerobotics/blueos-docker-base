@@ -3,7 +3,7 @@ FROM python:3.11.7-slim-bullseye AS build_gstreamer
 # Build and Pre-Install Gstreamer
 COPY ./scripts/build_gst.sh /build_gst.sh
 RUN GST_VERSION=1.24.1 \
-    LIBCAMERA_VERSION=v0.2.0 LIBCAMERA_ENABLED=true \
+    LIBCAMERA_VERSION=v0.3.0 LIBCAMERA_ENABLED=true \
     RPICAM_ENABLED=false \
     GST_OMX_ENABLED=false \
     ./build_gst.sh && rm /build_gst.sh
