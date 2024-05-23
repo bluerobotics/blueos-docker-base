@@ -59,6 +59,7 @@ RUN apt update && \
         screen \
         ssh \
         sshpass \
+        sudo \
         tmux \
         tree \
         unzip \
