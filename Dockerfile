@@ -40,6 +40,7 @@ RUN apt update && \
         hostapd \
         htop \
         i2c-tools \
+        ifmetric \
         iotop \
         iproute2 \
         iperf3 \
