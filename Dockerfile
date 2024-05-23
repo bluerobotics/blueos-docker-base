@@ -47,6 +47,7 @@ RUN apt update && \
         iw \
         jq \
         less \
+        libudev-dev \
         locate \
         lsof \
         mtr \
