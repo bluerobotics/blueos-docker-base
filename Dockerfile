@@ -31,6 +31,7 @@ RUN apt update && \
         bat \
         bzip2 \
         curl \
+        dnsmasq \
         dnsutils \
         exa \
         file \
