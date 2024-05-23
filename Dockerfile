@@ -53,6 +53,7 @@ RUN apt update && \
         mtr \
         nano \
         net-tools \
+        nginx \
         parallel \
         rsync \
         screen \
