@@ -119,6 +119,7 @@ GST_BUILD_TOOLS_DEFAULT=(
     apt-transport-https
     bison
     ca-certificates
+    ccache
     cmake
     curl
     flex
@@ -243,6 +244,10 @@ if [ -n "$USERLAND_PATH" ]; then
 
     cd $OLDPWD
 fi
+
+# Setup ccache
+update-ccache-symlinks
+echo 'export PATH="/usr/lib/ccache:$PATH"'
 
 # Download, build, and pre-install Gstreamer
 
