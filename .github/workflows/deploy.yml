@@ -1,136 +1,191 @@
 name: Test, Build and Deploy Images
 
 env:
+  PROJECT: blueos
+  DOCKER: base
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  IMAGE_LIMIT_SIZE_MB: 600
+  ARTIFACTS_PATH: /tmp/artifacts
+  DIGESTS_PATH: /tmp/digests
 
 on:
-    workflow_dispatch:
-    pull_request:
-    push:
-    schedule:
+  workflow_dispatch:
+  pull_request:
+  push:
+  schedule:
     # Run every 6 days to keep our caches alive
     - cron: '0 0 */6 * *'
 
 jobs:
-  deploy-docker-images:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+
     strategy:
       matrix:
-        docker: [base]
-        project: [companion]
-        new_project: [blueos]
-        platforms: ["linux/arm/v7,linux/arm64,linux/amd64"]
+        platform:
+          - linux/arm/v7
+          - linux/arm64
+          - linux/amd64
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Prepare
         id: prepare
         run: |
-          # Deploy image with the name of the branch, if the build is a git tag, replace tag with the tag name.
-          # If git tag matches semver, append latest tag to the push.
-          DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${{ matrix.project }}-${{ matrix.docker }}
-          VERSION=${GITHUB_REF##*/}
+          echo "buildx_args=VUE_APP_GIT_DESCRIBE=$(git describe --long --always --dirty --all)" >> $GITHUB_OUTPUT
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
-          fi
+          echo "DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${PROJECT}-${DOCKER}" >> $GITHUB_ENV
 
-          TAGS="--tag ${DOCKER_IMAGE}:${VERSION}"
-          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            TAGS="$TAGS --tag ${DOCKER_IMAGE}:latest"
-          fi
+          mkdir -p "${ARTIFACTS_PATH}"
+          mkdir -p "${DIGESTS_PATH}"
 
-          # Add temporary tag for the new project name
-          TAGS="$TAGS --tag ${DOCKER_USERNAME:-bluerobotics}/${{ matrix.new_project }}-${{ matrix.docker }}:${VERSION}"
-          echo ::set-output name=docker_image::${DOCKER_IMAGE}
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=buildx_args:: \
-            --build-arg VUE_APP_GIT_DESCRIBE=$(git describe --long --always --dirty --all) \
-            --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            ${TAGS} \
-            --file Dockerfile .
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
 
-      - name: Cache Docker layers
-        uses: actions/cache@v2
+      - name: Cache
+        uses: actions/cache@v4
         id: cache
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.docker }}-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.docker }}-${{ hashFiles('Dockerfile') }}
-            ${{ runner.os }}-buildx-${{ matrix.docker }}
+          path: |
+            var-cache-apt
+            var-lib-apt
+            var-ccache
+          key: ${{ env.PLATFORM_PAIR }}-cache-${{ hashFiles('Dockerfile') }}
+          restore-keys: ${{ env.PLATFORM_PAIR }}-cache-
 
-      - name: Docker Buildx (build)
-        run: |
-          # Pull latest version of image to help with build speed
-          IFS=',' read -ra platforms <<< "${{ matrix.platforms }}"
-          for platform in "${platforms[@]}"; do
-            docker pull --platform ${platform} ${DOCKER_USERNAME:-bluerobotics}/${{ matrix.project }}-${{ matrix.docker }}:master || true
-          done
-          docker buildx build \
-            --output "type=image,push=false" \
-            --platform ${{ matrix.platforms }} \
-            ${{ steps.prepare.outputs.buildx_args }}
-
-      - name: Check size
-        run: |
-          # Check if the image size is lower than our limit
-          docker image list
-          IMAGE_ID=$(docker images -q ${DOCKER_USERNAME:-bluerobotics}/${{ matrix.project }} | head -n 1)
-          LIMIT_SIZE_MB=600
-          IMAGE_SIZE_MB=$(( $(docker inspect $IMAGE_ID --format {{.Size}})/(2**20) ))
-          echo "Core size is: $IMAGE_SIZE_MB MB"
-          ((IMAGE_SIZE_MB < LIMIT_SIZE_MB))
+      - name: Inject cache into Docker
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          cache-map: |
+            {
+              "var-cache-apt": "/var/cache/apt",
+              "var-lib-apt": "/var/lib/apt",
+              "var-ccache": "~/.cache"
+            }
+          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
       - name: Login to DockerHub
         if: success() && github.event_name != 'pull_request'
-        uses: crazy-max/ghaction-docker-login@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Docker Buildx (push)
-        if: success() && github.event_name != 'pull_request'
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ github.event_name != 'pull_request' }}
+          outputs: type=docker,dest=${{ env.ARTIFACTS_PATH }}/${{ env.PLATFORM_PAIR }}.tar
+          build-args: ${{ steps.prepare.outputs.buildx_args }}
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,scope=${{ env.PLATFORM_PAIR }},mode=max
+
+      - name: Export digest
         run: |
-          docker buildx build \
-            --output "type=image,push=true" \
-            --platform ${{ matrix.platforms }} \
-            ${{ steps.prepare.outputs.buildx_args }}
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ env.DIGESTS_PATH }}/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: ${{ env.DIGESTS_PATH }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT }}-${{ env.DOCKER }}-${{ env.PLATFORM_PAIR }}
+          path: ${{ env.ARTIFACTS_PATH }}/*.tar
+          if-no-files-found: error
+
+      - name: Check size
+        run: |
+          image_name=$(docker load --input ${{ env.ARTIFACTS_PATH }}/*.tar | awk '{print $3}')
+
+          IMAGE_SIZE_BYTES=$(docker image inspect $image_name --format "{{json .Size}}")
+          IMAGE_SIZE_MB=$((IMAGE_SIZE_BYTES / 1024 / 1024))
+
+          echo "Core size is: ${IMAGE_SIZE_MB} MB"
+          echo "Core size limit: ${IMAGE_LIMIT_SIZE_MB} MB"
+          if [ "$IMAGE_SIZE_MB" -gt "$IMAGE_LIMIT_SIZE_MB" ]; then
+            echo "::error::Image size is larger than the limit"
+          fi
+
+  merge:
+    runs-on: ubuntu-22.04
+    needs:
+      - build
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.DIGESTS_PATH }}
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Delete digests
+        uses: geekyeggo/delete-artifact@v5
+        with:
+            name: digests-*
+            useGlob: true
+            failOnError: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Prepare
+        id: prepare
+        run: echo "DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${PROJECT}-${DOCKER}" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        if: success() && github.event_name != 'pull_request'
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create manifest list and push
+        if: success() && github.event_name != 'pull_request'
+        working-directory: ${{ env.DIGESTS_PATH }}
+        run: docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") $(printf '${{ env.DOCKER_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         if: always() && github.event_name != 'pull_request'
-        run: |
-          docker buildx imagetools \
-            inspect ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}
-
-      - name: Create image artifact
-        # We are serializing each export here because "Currently, multi-platform images cannot be
-        # exported with the docker export type." (https://docs.docker.com/engine/reference/commandline/buildx_build/#output)
-        run: |
-          DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${{ matrix.project }}-${{ matrix.docker }}
-          GIT_HASH_SHORT=$(git rev-parse --short "$GITHUB_SHA")
-          IFS=',' read -ra platforms <<< "${{ matrix.platforms }}"
-          for platform in "${platforms[@]}"; do
-            docker buildx build \
-              --platform $platform \
-              ${{ steps.prepare.outputs.buildx_args }} \
-              --tag ${DOCKER_IMAGE}:${GIT_HASH_SHORT} \
-              --output "type=docker,dest=BlueOS-base-${GIT_HASH_SHORT}.tar"
-          done
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueOS-base-docker-image.zip
-          path: '*.tar'
+        run: docker buildx imagetools inspect ${{ env.DOCKER_IMAGE }}:${{ steps.meta.outputs.version }} --format "{{json .}}" | jq
