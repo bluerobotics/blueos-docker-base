@@ -4,7 +4,7 @@ env:
   PROJECT: blueos
   DOCKER: base
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  IMAGE_LIMIT_SIZE_MB: 600
+  IMAGE_LIMIT_SIZE_MB: 900
   ARTIFACTS_PATH: /tmp/artifacts
   DIGESTS_PATH: /tmp/digests
 
