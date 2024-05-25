@@ -246,9 +246,11 @@ fi
 
 # Download, build, and pre-install Gstreamer
 
+GSTREAMER_GIT_DIR=/tmp/gstreamer
+
 git clone --branch $GST_VERSION --single-branch --depth=1 \
-    $GST_GIT_URL gstreamer
-cd gstreamer
+    $GST_GIT_URL $GSTREAMER_GIT_DIR
+cd $GSTREAMER_GIT_DIR
 
 if [ $LIBCAMERA_ENABLED == true ]; then
     cat << EOF > subprojects/libcamera.wrap
@@ -275,7 +277,3 @@ for file in ${GST_RTSP_HELPERS[@]}; do
     install -Dm755 $GST_BUILD_DIR/subprojects/gst-rtsp-server/examples/$file \
         $GST_INSTALL_DIR/usr/local/bin/$file
 done
-
-# Clean the docker image
-rm -rf build
-apt autoremove -y
