@@ -34,8 +34,6 @@ jobs:
       - name: Prepare
         id: prepare
         run: |
-          echo "buildx_args=VUE_APP_GIT_DESCRIBE=$(git describe --long --always --dirty --all)" >> $GITHUB_OUTPUT
-
           echo "DOCKER_IMAGE=${DOCKER_USERNAME:-bluerobotics}/${PROJECT}-${DOCKER}" >> $GITHUB_ENV
 
           mkdir -p "${ARTIFACTS_PATH}"
@@ -104,7 +102,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name != 'pull_request' }}
           outputs: type=docker,dest=${{ env.ARTIFACTS_PATH }}/${{ env.PLATFORM_PAIR }}.tar
-          build-args: ${{ steps.prepare.outputs.buildx_args }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
           cache-to: type=gha,scope=${{ env.PLATFORM_PAIR }},mode=max
