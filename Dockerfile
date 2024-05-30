@@ -8,7 +8,7 @@ ARG GST_OMX_ENABLED=false
 
 
 # Stage 1: Base Image
-FROM python:3.11.7-slim-bookworm AS base
+FROM python:3.12.3-slim-bookworm AS base
 
 RUN <<-EOF
 set -e
