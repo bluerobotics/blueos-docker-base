@@ -8,12 +8,12 @@ ARG GST_OMX_ENABLED=false
 
 
 # Stage 1: Base Image
-FROM python:3.11.7-slim-bullseye AS base
+FROM python:3.11.7-slim-bookworm AS base
 
 RUN <<-EOF
 set -e
     # Add backports
-    echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" >> "/etc/apt/sources.list"
+    echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-free" >> "/etc/apt/sources.list"
 
     # Setup cache
     rm -f /etc/apt/apt.conf.d/docker-clean
@@ -104,10 +104,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             wget \
         # LIBS:
             libatm1 \
-            libavcodec58 \
-            libavfilter7 \
-            libavformat58 \
-            libavutil56 \
+            libavcodec59 \
+            libavfilter8 \
+            libavformat59 \
+            libavutil57 \
             libde265-0 \
             libdrm2 \
             libdv4 \
@@ -123,15 +123,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libvorbis0a \
             libtk8.6 \
             libv4l-0 \
-            libva-drm2/bullseye-backports \
-            libva-glx2/bullseye-backports \
-            libva-wayland2/bullseye-backports \
-            libva-x11-2/bullseye-backports \
-            libva2/bullseye-backports \
-            libvpx6 \
+            libva-drm2 \
+            libva-glx2 \
+            libva-wayland2 \
+            libva-x11-2 \
+            libva2 \
+            libvpx7 \
             libyaml-0-2 \
-            libx264-160 \
-            libx265-192 \
+            libx264-164 \
+            libx265-199 \
             libxml2
 
 # Install some tools
