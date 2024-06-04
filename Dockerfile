@@ -104,6 +104,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             wget \
         # LIBS:
             libatm1 \
+            libatomic1 \
             libavcodec59 \
             libavfilter8 \
             libavformat59 \
