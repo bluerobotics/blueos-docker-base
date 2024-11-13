@@ -32,9 +32,11 @@ ARG RPICAM_ENABLED
 ARG GST_OMX_ENABLED
 
 COPY --link ./scripts/build_gst.sh /build_gst.sh
+ENV CCACHE_DIR=/ccache
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/root/.cache,sharing=locked \
+    --mount=type=cache,target=/ccache,sharing=locked \
     ./build_gst.sh \
     && rm -f /build_gst.sh \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
