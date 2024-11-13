@@ -31,7 +31,7 @@ ARG LIBCAMERA_VERSION
 ARG RPICAM_ENABLED
 ARG GST_OMX_ENABLED
 
-COPY ./scripts/build_gst.sh /build_gst.sh
+COPY --link ./scripts/build_gst.sh /build_gst.sh
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/root/.cache,sharing=locked \
@@ -136,20 +136,20 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libxml2
 
 # Install some tools
-COPY ./scripts/install_viu.sh /install_viu.sh
+COPY --link ./scripts/install_viu.sh /install_viu.sh
 RUN ./install_viu.sh && rm /install_viu.sh
 
-COPY ./scripts/install_gping.sh /install_gping.sh
+COPY --link ./scripts/install_gping.sh /install_gping.sh
 RUN ./install_gping.sh && rm /install_gping.sh
 
-COPY ./scripts/install_simple_http_server.sh /install_simple_http_server.sh
+COPY --link ./scripts/install_simple_http_server.sh /install_simple_http_server.sh
 RUN ./install_simple_http_server.sh && rm /install_simple_http_server.sh
 
 # Install Pre-built GStreamer
 COPY --from=gstreamer /artifacts/. /.
 
 # Update links for the installed libraries and check if GStreamer is setup correctly
-COPY ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
+COPY --link ./scripts/inspect_gst_plugins.sh /inspect_gst_plugins.sh
 RUN ldconfig \
     && /inspect_gst_plugins.sh \
     && mkdir -p /home/pi/tools \
