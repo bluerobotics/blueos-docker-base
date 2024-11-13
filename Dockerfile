@@ -53,9 +53,11 @@ ARG RPICAM_ENABLED
 RUN <<-EOF
 set -e
     RCFILE_PATH="/etc/blueosrc"
-    echo "alias cat='batcat --paging=never'" >> "$RCFILE_PATH"
-    echo "alias ls=exa" >> "$RCFILE_PATH"
-    echo "cd ~" >> "$RCFILE_PATH"
+    {
+      echo "alias cat='batcat --paging=never'"
+      echo "alias ls=exa"
+      echo "cd ~"
+    } >> "$RCFILE_PATH"
     echo "source $RCFILE_PATH" >> "/etc/bash.bashrc"
 EOF
 
