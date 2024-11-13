@@ -83,11 +83,11 @@ for plugin in "${PLUGINS[@]}"; do \
     # Check if gst-inspect can find the plugin
     filename=$(gst-inspect-1.0 "$plugin" | grep Filename | awk '{print $2}')
     if [ -z "$filename" ]; then
-        let "errors++"
+        (( errors++ ))
     # If found, check for possible missing links
     elif ldd -r "$filename" 2>&1 | grep -qF "undefined symbol\|not found\|???"; then
         echo "Error: $filename has at least one undefined symbol."
-        let "errors++"
+        (( errors++ ))
     fi
 done
 if [ $errors -gt 0 ]; then
