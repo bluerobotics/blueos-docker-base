@@ -53,21 +53,21 @@ PLUGINS=(
     x265enc
 )
 
-if [ $RPICAM_ENABLED == true ] && [ -f /dev/vchiq ]; then
+if [ "$RPICAM_ENABLED" == true ] && [ -f /dev/vchiq ]; then
     # This test needs to be run in a Raspberry Pi hardware to work.
     PLUGINS+=(
         rpicamsrc
     )
 fi
 
-if [ $GST_OMX_ENABLED == true ]; then
+if [ "$GST_OMX_ENABLED" == true ]; then
     PLUGINS+=(
         omxh264enc
         omx
     )
 fi
 
-if [ $LIBCAMERA_ENABLED == true ]; then
+if [ "$LIBCAMERA_ENABLED" == true ]; then
     PLUGINS+=(
         libcamera
         libcamerasrc
@@ -79,9 +79,9 @@ clear_cache
 # Here we are individually checking for each plugin because gst-inspect-1.0 only returns the error
 # code for the last item when a list is passed.
 errors=0
-for plugin in ${PLUGINS[@]}; do \
+for plugin in "${PLUGINS[@]}"; do \
     # Check if gst-inspect can find the plugin
-    filename=$(gst-inspect-1.0 $plugin | grep Filename | awk '{print $2}')
+    filename=$(gst-inspect-1.0 "$plugin" | grep Filename | awk '{print $2}')
     if [ -z "$filename" ]; then
         let "errors++"
     # If found, check for possible missing links
