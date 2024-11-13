@@ -66,35 +66,35 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D tools=enabled
     -D webrtc=enabled
 )
-GST_MESON_OPTIONS=${GST_MESON_OPTIONS:-${GST_MESON_OPTIONS_DEFAULT[@]}}
+GST_MESON_OPTIONS=("${GST_MESON_OPTIONS[@]:-${GST_MESON_OPTIONS_DEFAULT[@]}}")
 # If enabled, add OMX build configurations to the GST_MESON_OPTIONS array
 # Note: GStreamer >= 1.24.0 doesn't support it, and won't recognize the `omx` property
-if [ $GST_OMX_ENABLED == true ]; then
+if [ "$GST_OMX_ENABLED" == true ]; then
     GST_MESON_OPTIONS+=(
         -D omx=enabled
     )
-    if [[ $ARM == true ]]; then
+    if [[ "$ARM" == true ]]; then
         # To build omx for the "rpi" target, we need to provide the raspberrypi
         # IL headers:
         USERLAND_PATH=/tmp/userland
         GST_MESON_OPTIONS+=(
             -D gst-omx:target=rpi
-            -D gst-omx:header_path=$USERLAND_PATH/interface/vmcs_host/khronos/IL
+            -D gst-omx:header_path="$USERLAND_PATH"/interface/vmcs_host/khronos/IL
         )
     else
         GST_MESON_OPTIONS+=(
             -D gst-omx:target=generic
         )
-    fi 
+    fi
 fi
-if [ $LIBCAMERA_ENABLED == true ]; then
+if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_MESON_OPTIONS+=(
         -D custom_subprojects=libcamera
         -D libcamera:cam=disabled
         -D libcamera:cpp_std=c++17
         -D libcamera:documentation=disabled
         -D libcamera:gstreamer=enabled
-        -D libcamera:ipas=ipu3,rkisp1,rpi/vc4
+        -D libcamera:ipas="ipu3,rkisp1,rpi/vc4"
         -D libcamera:lc-compliance=disabled
         -D libcamera:pipelines=auto
         -D libcamera:pycamera=disabled
@@ -105,11 +105,11 @@ if [ $LIBCAMERA_ENABLED == true ]; then
         -D libcamera:v4l2=true
     )
 fi
-if [ $RPICAM_ENABLED == true ]; then
+if [ "$RPICAM_ENABLED" == true ]; then
     GST_MESON_OPTIONS+=(
         -D gst-plugins-good:rpicamsrc=enabled
-        -D gst-plugins-good:rpi-header-dir=$GST_INSTALL_DIR/opt/vc/include
-        -D gst-plugins-good:rpi-lib-dir=$GST_INSTALL_DIR/opt/vc/lib
+        -D gst-plugins-good:rpi-header-dir="$GST_INSTALL_DIR"/opt/vc/include
+        -D gst-plugins-good:rpi-lib-dir="$GST_INSTALL_DIR"/opt/vc/lib
         -D gst-plugins-good:replaygain=disabled
     )
 fi
@@ -132,7 +132,7 @@ GST_BUILD_TOOLS_DEFAULT=(
     pkg-config
     python-gi-dev
 )
-GST_BUILD_TOOLS=${GST_BUILD_TOOLS:-${GST_BUILD_TOOLS_DEFAULT[@]}}
+GST_BUILD_TOOLS=("${GST_BUILD_TOOLS:-${GST_BUILD_TOOLS_DEFAULT[@]}}")
 
 # Although to build GStreamer essentially we need only a few libraries, here we
 # are actively providing several libraries which would otherwise be compiled
@@ -177,8 +177,8 @@ GST_BUILD_LIBS_DEFAULT=(
     libudev-dev
     openssl
 )
-GST_BUILD_LIBS=${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}
-if [ $LIBCAMERA_ENABLED == true ]; then
+GST_BUILD_LIBS=("${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}")
+if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_BUILD_LIBS+=(
         libboost-dev
         libgnutls28-dev
@@ -191,7 +191,7 @@ GST_PIP_DEPENDENCIES=(
     "markdown==3.3.7"
     "meson==1.3.2"
 )
-if [ $LIBCAMERA_ENABLED == true ]; then
+if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_PIP_DEPENDENCIES+=(
         "jinja2==3.1.2"
         "ply==3.11"
@@ -236,28 +236,28 @@ if [ -n "$USERLAND_PATH" ]; then
     cd "$USERLAND_PATH"
 
     sed -i "s/sudo//g" buildme  # remove any sudo call
-    ./buildme $GST_INSTALL_DIR
+    ./buildme "$GST_INSTALL_DIR"
 
     # Let linux aware of userland libs, needed in runtime
-    mkdir -p $GST_INSTALL_DIR/etc/ld.so.conf.d/
-    echo "/opt/vc/lib" > $GST_INSTALL_DIR/etc/ld.so.conf.d/userland.conf
+    mkdir -p "$GST_INSTALL_DIR"/etc/ld.so.conf.d/
+    echo "/opt/vc/lib" > "$GST_INSTALL_DIR"/etc/ld.so.conf.d/userland.conf
 
-    cd $OLDPWD
+    cd "$OLDPWD"
 fi
 
 # Setup ccache
 update-ccache-symlinks
-echo 'export PATH="/usr/lib/ccache:$PATH"'
+echo "export PATH='/usr/lib/ccache:$PATH'"
 
 # Download, build, and pre-install Gstreamer
 
 GSTREAMER_GIT_DIR=/tmp/gstreamer
 
-git clone --branch $GST_VERSION --single-branch --depth=1 \
-    $GST_GIT_URL $GSTREAMER_GIT_DIR
-cd $GSTREAMER_GIT_DIR
+git clone --branch "$GST_VERSION" --single-branch --depth=1 \
+    "$GST_GIT_URL" "$GSTREAMER_GIT_DIR"
+cd "$GSTREAMER_GIT_DIR"
 
-if [ $LIBCAMERA_ENABLED == true ]; then
+if [ "$LIBCAMERA_ENABLED" == true ]; then
     cat << EOF > subprojects/libcamera.wrap
 [wrap-git]
 directory=libcamera
@@ -267,9 +267,9 @@ EOF
 fi
 
 GST_BUILD_DIR=builddir
-meson setup $GST_BUILD_DIR ${GST_MESON_OPTIONS[@]}
+meson setup "$GST_BUILD_DIR" "${GST_MESON_OPTIONS[@]}"
 
-DESTDIR=$GST_INSTALL_DIR ninja install -C $GST_BUILD_DIR
+DESTDIR="$GST_INSTALL_DIR" ninja install -C "$GST_BUILD_DIR"
 
 # Pre-install RTSP helpers
 GST_RTSP_HELPERS=(
@@ -278,7 +278,7 @@ GST_RTSP_HELPERS=(
     test-netclock
     test-netclock-client
 )
-for file in ${GST_RTSP_HELPERS[@]}; do
-    install -Dm755 $GST_BUILD_DIR/subprojects/gst-rtsp-server/examples/$file \
-        $GST_INSTALL_DIR/usr/local/bin/$file
+for file in "${GST_RTSP_HELPERS[@]}"; do
+    install -Dm755 "$GST_BUILD_DIR"/subprojects/gst-rtsp-server/examples/"$file" \
+        "$GST_INSTALL_DIR"/usr/local/bin/"$file"
 done
