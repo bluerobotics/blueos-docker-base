@@ -224,10 +224,10 @@ EOF
 
 # Install all dependencies
 
-apt update
-apt install --assume-yes --no-install-recommends --mark-auto \
-    ${GST_BUILD_TOOLS[@]} ${GST_BUILD_LIBS[@]}
+apt-get update
 pip3 install ${GST_PIP_DEPENDENCIES[@]}
+apt-get install --assume-yes --no-install-recommends --mark-auto \
+    "${GST_BUILD_TOOLS[@]}" "${GST_BUILD_LIBS[@]}"
 
 # Download and install IL headers if needed:
 if [ -n "$USERLAND_PATH" ]; then
