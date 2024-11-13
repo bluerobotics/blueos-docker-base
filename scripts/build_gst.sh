@@ -267,7 +267,7 @@ EOF
 fi
 
 GST_BUILD_DIR=builddir
-meson setup ${GST_MESON_OPTIONS[@]} $GST_BUILD_DIR
+meson setup $GST_BUILD_DIR ${GST_MESON_OPTIONS[@]}
 
 DESTDIR=$GST_INSTALL_DIR ninja install -C $GST_BUILD_DIR
 
