@@ -231,9 +231,9 @@ python3 -m pip install --no-cache-dir "${GST_PIP_DEPENDENCIES[@]}"
 
 # Download and install IL headers if needed:
 if [ -n "$USERLAND_PATH" ]; then
-    git clone https://github.com/raspberrypi/userland.git $USERLAND_PATH
-    cd $USERLAND_PATH
-    git checkout 54fd97ae4066a10b6b02089bc769ceed328737e0
+    git clone https://github.com/raspberrypi/userland.git "$USERLAND_PATH" --branch 54fd97ae4066a10b6b02089bc769ceed328737e0 \
+        --single-branch --depth 1
+    cd "$USERLAND_PATH"
 
     sed -i "s/sudo//g" buildme  # remove any sudo call
     ./buildme $GST_INSTALL_DIR
