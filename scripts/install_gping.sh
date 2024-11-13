@@ -16,7 +16,7 @@ if [[ "$(uname -m)" == "x86_64"* ]]; then
 fi
 
 wget $REMOTE_BINARY_URL
-tar xzf *.tar.gz
+tar xzf ./*.tar.gz
 
 cp gping /usr/bin/gping
 
