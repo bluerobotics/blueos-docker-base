@@ -36,7 +36,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=cache,target=/root/.cache,sharing=locked \
     ./build_gst.sh \
-    && rm -f /build_gst.sh
+    && rm -f /build_gst.sh \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 # Stage 3: Final Image
@@ -133,7 +134,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libyaml-0-2 \
             libx264-164 \
             libx265-199 \
-            libxml2
+            libxml2 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install some tools
 COPY --link ./scripts/install_viu.sh /install_viu.sh
