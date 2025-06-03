@@ -189,7 +189,7 @@ fi
 GST_PIP_DEPENDENCIES=(
     "mako==1.2.0"
     "markdown==3.3.7"
-    "meson==1.3.2"
+    "meson==1.4.0"
 )
 if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_PIP_DEPENDENCIES+=(
