@@ -104,7 +104,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             tmux \
             tree \
             unzip \
-            vim \
+            vim-tiny \
             watch \
             wget \
         # LIBS:
@@ -139,7 +139,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libx264-164 \
             libx265-199 \
             libxml2 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && ln -sf /usr/bin/vim.tiny /usr/bin/vim
 
 # Install some tools
 COPY --link ./scripts/install_viu.sh /install_viu.sh
