@@ -70,6 +70,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             bat \
             bzip2 \
             curl \
+            dhcpcd5 \
             dnsmasq \
             dnsutils \
             exa \
@@ -80,10 +81,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             htop \
             i2c-tools \
             ifmetric \
+            isc-dhcp-client \
             # Note: Remove iotop if htop is newer 3.2+
             iotop \
             iproute2 \
             iperf3 \
+            iproute2 \
+            iptables \
             iputils-ping \
             iw \
             jq \
@@ -95,12 +99,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             nano \
             net-tools \
             nginx \
+            nmap \
             parallel \
             rsync \
             screen \
             ssh \
             sshpass \
             sudo \
+            systemd \
             tmux \
             tree \
             unzip \
