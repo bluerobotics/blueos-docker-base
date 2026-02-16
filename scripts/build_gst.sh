@@ -33,12 +33,6 @@ RPICAM_ENABLED=${RPICAM_ENABLED:-$ARM}
 GST_MESON_OPTIONS_DEFAULT=(
     --buildtype=release
     --strip
-    -D bad=enabled
-    -D build-tools-source=system
-    -D devtools=enabled
-    -D doc=disabled
-    -D ges=disabled
-    -D gpl=enabled
     -D gst-plugins-bad:libde265=enabled
     -D gst-plugins-bad:openh264=disabled
     -D gst-plugins-bad:rtp=enabled
@@ -52,13 +46,85 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D gst-plugins-good:vpx=enabled
     -D gst-plugins-ugly:x264=enabled
     -D gst-rtsp-server:examples=enabled
+    # Reference: https://github.com/GStreamer/gst-plugins-rs/blob/gstreamer-1.26.10/meson_options.txt
+        -D gst-plugins-rs:inter=enabled
+        -D gst-plugins-rs:rtsp=enabled
+        -D gst-plugins-rs:rtp=enabled
+        -D gst-plugins-rs:webrtc=enabled
+        -D gst-plugins-rs:webrtchttp=enabled
+        # analytics
+        -D gst-plugins-rs:analytics=disabled
+        # audio
+        -D gst-plugins-rs:audiofx=disabled
+        -D gst-plugins-rs:elevenlabs=disabled
+        -D gst-plugins-rs:claxon=disabled
+        -D gst-plugins-rs:csound=disabled
+        -D gst-plugins-rs:lewton=disabled
+        -D gst-plugins-rs:spotify=disabled
+        -D gst-plugins-rs:speechmatics=disabled
+        # generic
+        -D gst-plugins-rs:file=disabled
+        -D gst-plugins-rs:gopbuffer=disabled
+        -D gst-plugins-rs:originalbuffer=disabled
+        -D gst-plugins-rs:sodium=disabled
+        -D gst-plugins-rs:streamgrouper=disabled
+        -D gst-plugins-rs:threadshare=disabled
+        # mux
+        -D gst-plugins-rs:flavors=disabled
+        -D gst-plugins-rs:fmp4=disabled
+        -D gst-plugins-rs:mp4=disabled
+        # net
+        -D gst-plugins-rs:aws=disabled
+        -D gst-plugins-rs:hlsmultivariantsink=disabled
+        -D gst-plugins-rs:hlssink3=disabled
+        -D gst-plugins-rs:mpegtslive=disabled
+        -D gst-plugins-rs:ndi=disabled
+        -D gst-plugins-rs:onvif=disabled
+        -D gst-plugins-rs:quinn=disabled
+        -D gst-plugins-rs:raptorq=disabled
+        -D gst-plugins-rs:reqwest=disabled
+        # text
+        -D gst-plugins-rs:json=disabled
+        -D gst-plugins-rs:regex=disabled
+        -D gst-plugins-rs:textahead=disabled
+        -D gst-plugins-rs:textwrap=disabled
+        # utils
+        -D gst-plugins-rs:fallbackswitch=disabled
+        -D gst-plugins-rs:livesync=disabled
+        -D gst-plugins-rs:togglerecord=disabled
+        -D gst-plugins-rs:tracers=disabled
+        -D gst-plugins-rs:uriplaylistbin=disabled
+        # video
+        -D gst-plugins-rs:cdg=disabled
+        -D gst-plugins-rs:closedcaption=disabled
+        -D gst-plugins-rs:dav1d=disabled
+        -D gst-plugins-rs:ffv1=disabled
+        -D gst-plugins-rs:gif=disabled
+        -D gst-plugins-rs:gtk4=disabled
+        -D gst-plugins-rs:hsv=disabled
+        -D gst-plugins-rs:png=disabled
+        -D gst-plugins-rs:rav1e=disabled
+        -D gst-plugins-rs:skia=disabled
+        -D gst-plugins-rs:videofx=disabled
+        -D gst-plugins-rs:vvdec=disabled
+        -D gst-plugins-rs:webp=disabled
+        # common
+        -D gst-plugins-rs:doc=disabled
+        -D gst-plugins-rs:examples=disabled
+        -D gst-plugins-rs:tests=disabled
+    -D bad=enabled
+    -D build-tools-source=system
+    -D devtools=enabled
+    -D doc=disabled
+    -D ges=disabled
+    -D gpl=enabled
     -D introspection=disabled
     -D libav=enabled
     -D nls=disabled
     -D orc=disabled
     -D python=disabled
     -D qt5=disabled
-    -D rs=disabled
+    -D rs=enabled
     -D rtsp_server=enabled
     -D tests=disabled
     -D tls=enabled
@@ -229,6 +295,16 @@ apt-get install --assume-yes --no-install-recommends --mark-auto \
     "${GST_BUILD_TOOLS[@]}" "${GST_BUILD_LIBS[@]}"
 python3 -m pip install --no-cache-dir "${GST_PIP_DEPENDENCIES[@]}"
 
+# Install Rust toolchain (needed for gst-plugins-rs: intersink, intersrc, etc.)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+# shellcheck source=/dev/null
+source "$HOME/.cargo/env"
+# Use system git instead of Cargo's built-in libgit2 for fetching dependencies.
+# libgit2 fails on 32-bit ARM (armv7) with "Value too large for defined data type"
+# when cloning large repositories like gstreamer-rs.
+export CARGO_NET_GIT_FETCH_WITH_CLI=true
+cargo install cargo-c
+
 # Download and install IL headers if needed:
 if [ -n "$USERLAND_PATH" ]; then
     git clone https://github.com/raspberrypi/userland.git "$USERLAND_PATH" --branch 54fd97ae4066a10b6b02089bc769ceed328737e0 \
@@ -270,6 +346,19 @@ GST_BUILD_DIR=builddir
 meson setup "$GST_BUILD_DIR" "${GST_MESON_OPTIONS[@]}"
 
 DESTDIR="$GST_INSTALL_DIR" ninja install -C "$GST_BUILD_DIR"
+
+# Strip all installed binaries and shared libraries.
+# Meson's --strip flag only strips meson-native targets (executable,
+# shared_library) but NOT custom_target outputs. The Rust .so plugins from
+# gst-plugins-rs are installed via custom_target and retain full debug info
+# (debug = true in Cargo's release profile). Combined with codegen-units = 1
+# (added in gst-plugins-rs 1.26.10), the optimizer inlines aggressively and
+# the unstripped debug symbols add ~750 MB to the image.
+find "$GST_INSTALL_DIR" -type f \( -name '*.so' -o -name '*.so.*' \) \
+    -exec strip --strip-unneeded {} + 2>/dev/null || true
+find "$GST_INSTALL_DIR" -type f -executable -exec sh -c '
+    for f; do file "$f" | grep -q "ELF" && strip --strip-unneeded "$f" 2>/dev/null; done
+' _ {} + || true
 
 # Pre-install RTSP helpers
 GST_RTSP_HELPERS=(

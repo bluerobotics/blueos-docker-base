@@ -20,6 +20,8 @@ PLUGINS=(
     h264parse
     h265parse
     identity
+    intersink
+    intersrc
     jpegdec
     jpegenc
     jpegparse
