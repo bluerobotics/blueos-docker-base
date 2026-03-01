@@ -52,6 +52,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     --buildtype=release
     --strip
     -Db_lto=true
+    -Db_ndebug=if-release
     -D bad=enabled
     -D build-tools-source=system
     -D devtools=enabled
