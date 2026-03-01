@@ -292,7 +292,20 @@ fi
 GST_BUILD_DIR=builddir
 meson setup "$GST_BUILD_DIR" "${GST_MESON_OPTIONS[@]}"
 
-DESTDIR="$GST_INSTALL_DIR" ninja $NINJA_JOBS_FLAG install -C "$GST_BUILD_DIR"
+# Use -k 0 so ninja builds everything possible before stopping, then retry
+# only the few targets that failed. QEMU segfaults are transient, so retries
+# almost always succeed. Typical run: attempt 1 builds 99%+, attempt 2-3 mop up.
+NINJA_MAX_RETRIES=${NINJA_MAX_RETRIES:-10}
+for attempt in $(seq 1 "$NINJA_MAX_RETRIES"); do
+    if DESTDIR="$GST_INSTALL_DIR" ninja "${NINJA_JOBS_ARGS[@]}" -k 0 install -C "$GST_BUILD_DIR"; then
+        break
+    fi
+    if [ "$attempt" -eq "$NINJA_MAX_RETRIES" ]; then
+        echo "Build failed after $NINJA_MAX_RETRIES attempts"
+        exit 1
+    fi
+    echo "Build attempt $attempt/$NINJA_MAX_RETRIES failed, retrying remaining targets..."
+done
 
 # Pre-install RTSP helpers
 GST_RTSP_HELPERS=(
