@@ -83,6 +83,7 @@ GST_MESON_OPTIONS_DEFAULT=(
     -D ugly=enabled
     -D tools=enabled
     -D webrtc=enabled
+    -D libsrtp2:crypto-library=openssl
 )
 GST_MESON_OPTIONS=("${GST_MESON_OPTIONS[@]:-${GST_MESON_OPTIONS_DEFAULT[@]}}")
 if [ "$IS_QEMU" == true ]; then
@@ -185,7 +186,6 @@ GST_BUILD_LIBS_DEFAULT=(
     libpng-dev
     libpsl-dev
     libsoup2.4-dev
-    libsrtp2-dev
     libssl-dev
     libsysprof-4-dev
     libv4l-dev
