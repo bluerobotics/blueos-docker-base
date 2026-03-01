@@ -191,3 +191,10 @@ RUN ldconfig \
     && /inspect_gst_plugins.sh \
     && mkdir -p /home/pi/tools \
     && mv /inspect_gst_plugins.sh /home/pi/tools/.
+
+# gst-full builds all GStreamer sub-libraries into a single monolithic
+# libgstreamer-full-1.0.so. Compatibility symlinks (e.g. libgstvideo-1.0.so.0
+# -> libgstreamer-full-1.0.so) exist on disk but ldconfig ignores them because
+# their SONAME doesn't match. LD_LIBRARY_PATH makes the dynamic linker search
+# the directory directly by filename, bypassing the SONAME-based cache.
+ENV LD_LIBRARY_PATH=/usr/local/lib/aarch64-linux-gnu:/usr/local/lib/arm-linux-gnueabihf:/usr/local/lib/x86_64-linux-gnu

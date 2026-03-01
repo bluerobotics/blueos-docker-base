@@ -53,12 +53,16 @@ GST_MESON_OPTIONS_DEFAULT=(
     --strip
     -Db_lto=true
     -Db_ndebug=if-release
+    --default-library=static
     -D bad=enabled
     -D build-tools-source=system
     -D devtools=enabled
     -D doc=disabled
     -D ges=disabled
     -D gpl=enabled
+    -D gst-full=enabled
+    -D gst-full-libraries=*
+    -D gst-full-target-type=shared_library
     -D gst-plugins-bad:libde265=enabled
     -D gst-plugins-bad:nvcodec=enabled
     -D gst-plugins-bad:openh264=disabled
@@ -319,14 +323,90 @@ for attempt in $(seq 1 "$NINJA_MAX_RETRIES"); do
     echo "Build attempt $attempt/$NINJA_MAX_RETRIES failed, retrying remaining targets..."
 done
 
-# Pre-install RTSP helpers
+# With gst-full, all GStreamer-native plugins are statically linked into
+# libgstreamer-full-1.0.so. Remove the individual plugin .so/.a files to
+# avoid duplicate type registration at runtime. External plugins (e.g.
+# libcamera) are NOT in gst-full and must be kept.
+GST_PLUGIN_DIR=$(echo "$GST_INSTALL_DIR"/usr/local/lib/*/gstreamer-1.0)
+EXTERNAL_PLUGINS=()
+if [ "$LIBCAMERA_ENABLED" == true ]; then
+    EXTERNAL_PLUGINS+=(libgstlibcamera.so)
+fi
+for f in "$GST_PLUGIN_DIR"/*.so "$GST_PLUGIN_DIR"/*.a; do
+    [ -f "$f" ] || continue
+    base=$(basename "$f")
+    keep=false
+    for ext in "${EXTERNAL_PLUGINS[@]}"; do
+        if [ "$base" == "$ext" ]; then
+            keep=true
+            break
+        fi
+    done
+    if [ "$keep" == false ]; then
+        rm -f "$f"
+    fi
+done
+
+# Create compatibility symlinks so pre-compiled binaries that link against
+# individual GStreamer libraries (e.g. libgstvideo-1.0.so.0) resolve to the
+# monolithic libgstreamer-full-1.0.so. Auto-discover from installed .a files.
+ARCH_TRIPLE=$(cc -dumpmachine)
+GST_LIB_DIR="$GST_INSTALL_DIR/usr/local/lib/$ARCH_TRIPLE"
+for archive in "$GST_LIB_DIR"/libgst*.a; do
+    [ -f "$archive" ] || continue
+    base=$(basename "$archive" .a)
+    [ "$base" = "libgstreamer-full-1.0" ] && continue
+    ln -sf libgstreamer-full-1.0.so "$GST_LIB_DIR/${base}.so.0"
+    ln -sf libgstreamer-full-1.0.so "$GST_LIB_DIR/${base}.so"
+done
+
+# Pre-install RTSP helpers.
+# gst-full disables examples, so compile them against the installed libs.
 GST_RTSP_HELPERS=(
     test-mp4
     test-launch
     test-netclock
     test-netclock-client
 )
+NINJA_MAX_RETRIES=${NINJA_MAX_RETRIES:-3}
+GST_RTSP_EXAMPLES_DIR="$GSTREAMER_GIT_DIR"/subprojects/gst-rtsp-server/examples
+GST_INC_DIR="$GST_INSTALL_DIR/usr/local/include/gstreamer-1.0"
+read -ra GLIB_CFLAGS < <(pkg-config --cflags glib-2.0 gobject-2.0 gio-2.0)
+read -ra GLIB_LIBS < <(pkg-config --libs glib-2.0 gobject-2.0 gio-2.0)
+
 for file in "${GST_RTSP_HELPERS[@]}"; do
-    install -Dm755 "$GST_BUILD_DIR"/subprojects/gst-rtsp-server/examples/"$file" \
-        "$GST_INSTALL_DIR"/usr/local/bin/"$file"
+    if [ -f "$GST_BUILD_DIR"/subprojects/gst-rtsp-server/examples/"$file" ]; then
+        install -Dm755 "$GST_BUILD_DIR"/subprojects/gst-rtsp-server/examples/"$file" \
+            "$GST_INSTALL_DIR"/usr/local/bin/"$file"
+    else
+        for attempt in $(seq 1 "$NINJA_MAX_RETRIES"); do
+            if cc "$GST_RTSP_EXAMPLES_DIR/$file.c" -o "$GST_INSTALL_DIR/usr/local/bin/$file" \
+                -I"$GST_INC_DIR" "${GLIB_CFLAGS[@]}" \
+                -L"$GST_LIB_DIR" -Wl,-rpath-link,"$GST_LIB_DIR" \
+                -lgstreamer-full-1.0 \
+                "$GST_LIB_DIR"/libgstrtspserver-1.0.a \
+                "$GST_LIB_DIR"/libgstnet-1.0.a \
+                "${GLIB_LIBS[@]}" \
+                -Wl,-rpath,/usr/local/lib/"$ARCH_TRIPLE"; then
+                break
+            fi
+            if [ "$attempt" -eq "$NINJA_MAX_RETRIES" ]; then
+                echo "Failed to compile $file after $NINJA_MAX_RETRIES attempts"
+                exit 1
+            fi
+            echo "Compiling $file failed (attempt $attempt/$NINJA_MAX_RETRIES), retrying..."
+        done
+    fi
 done
+
+# Strip build-time-only artifacts from the install dir. Static archives and
+# headers were needed above to compile the RTSP helpers but serve no purpose
+# in the final image.
+find "$GST_INSTALL_DIR/usr/local/lib" -name '*.a' -delete
+find "$GST_INSTALL_DIR/usr/local/lib" -name '*.la' -delete
+rm -rf "$GST_INSTALL_DIR/usr/local/lib"/*/pkgconfig
+rm -rf "$GST_INSTALL_DIR/usr/local/lib"/*/gstreamer-1.0/pkgconfig
+rm -rf "$GST_INSTALL_DIR/usr/local/lib"/*/gst-validate-launcher
+rm -rf "$GST_INSTALL_DIR/usr/local/include"
+rm -rf "$GST_INSTALL_DIR/usr/local/share"
+rm -rf "$GST_INSTALL_DIR/usr/local/libexec/gstreamer-1.0/gst-plugins-doc-cache-generator"
