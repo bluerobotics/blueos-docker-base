@@ -126,11 +126,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libdv4 \
             libglib2.0-0 \
             libgudev-1.0-0 \
+            libjpeg62-turbo \
             libjson-glib-1.0-0 \
             libogg0 \
             libopenjp2-7 \
             libopus0 \
+            libpng16-16 \
             libpulse0 \
+            libsoup2.4-1 \
             libsrtp2-1 \
             libtcl8.6 \
             libvorbis0a \
