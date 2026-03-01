@@ -134,7 +134,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libpng16-16 \
             libpulse0 \
             libsoup2.4-1 \
-            libsrtp2-1 \
             libtcl8.6 \
             libvorbis0a \
             libtk8.6 \
