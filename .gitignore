@@ -1,2 +1,3 @@
 scripts/gstreamer
 .idea/
+.buildx-cache/
