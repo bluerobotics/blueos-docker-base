@@ -112,6 +112,7 @@ fi
 if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_MESON_OPTIONS+=(
         -D custom_subprojects=libcamera
+        -D libcamera:werror=false
         -D libcamera:cam=disabled
         -D libcamera:cpp_std=c++17
         -D libcamera:documentation=disabled
