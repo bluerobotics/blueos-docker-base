@@ -117,7 +117,7 @@ if [ "$LIBCAMERA_ENABLED" == true ]; then
         -D libcamera:cpp_std=c++17
         -D libcamera:documentation=disabled
         -D libcamera:gstreamer=enabled
-        -D libcamera:ipas="ipu3,rkisp1,rpi/vc4"
+        -D libcamera:ipas="rkisp1,rpi/pisp,rpi/vc4,simple"
         -D libcamera:lc-compliance=disabled
         -D libcamera:pipelines=auto
         -D libcamera:pycamera=disabled
