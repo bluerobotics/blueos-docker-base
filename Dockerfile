@@ -50,6 +50,21 @@ ARG GST_INSTALL_DIR
 ARG LIBCAMERA_ENABLED
 ARG RPICAM_ENABLED
 
+# Strip files that serve no purpose in a headless embedded image. The
+# dpkg path-exclude directive prevents these from ever being unpacked,
+# saving I/O during install and keeping layers small. This config
+# persists into downstream images (e.g. blueos-core).
+RUN cat >/etc/dpkg/dpkg.cfg.d/strip-headless <<'DPKG'
+path-exclude=/usr/share/doc/*
+path-include=/usr/share/doc/*/copyright
+path-exclude=/usr/share/man/*
+path-exclude=/usr/share/fonts/*
+path-exclude=/usr/share/X11/*
+path-exclude=/usr/share/tcltk/*
+path-exclude=/usr/share/libmysofa/*
+path-exclude=/usr/share/libthai/*
+DPKG
+
 # Setup the user environment
 RUN <<-EOF
 set -e
@@ -150,7 +165,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libx265-199 \
             libxml2 \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && ln -sf /usr/bin/vim.tiny /usr/bin/vim
+    && ln -sf /usr/bin/vim.tiny /usr/bin/vim \
+    # Remove dirs whose postinst scripts break with dpkg path-exclude.
+    # icons (adwaita-icon-theme) and mime (shared-mime-info) must be
+    # installed first then stripped, unlike the dirs handled by dpkg.cfg.
+    && rm -rf /usr/share/icons /usr/share/mime
 
 # Install some tools
 COPY --link ./scripts/install_viu.sh /install_viu.sh
