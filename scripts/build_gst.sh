@@ -125,7 +125,7 @@ if [ "$LIBCAMERA_ENABLED" == true ]; then
         -D libcamera:test=false
         -D libcamera:tracing=disabled
         -D libcamera:udev=enabled
-        -D libcamera:v4l2=true
+        -D libcamera:v4l2=enabled
     )
 fi
 if [ "$RPICAM_ENABLED" == true ]; then
