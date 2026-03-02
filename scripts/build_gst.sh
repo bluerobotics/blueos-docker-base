@@ -203,6 +203,8 @@ GST_BUILD_LIBS=("${GST_BUILD_LIBS:-${GST_BUILD_LIBS_DEFAULT[@]}}")
 if [ "$LIBCAMERA_ENABLED" == true ]; then
     GST_BUILD_LIBS+=(
         libboost-dev
+        libegl-dev
+        libgles-dev
         libgnutls28-dev
         libyaml-dev
     )
