@@ -124,6 +124,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
             libde265-0 \
             libdrm2 \
             libdv4 \
+            libegl1 \
+            libgles2 \
             libglib2.0-0 \
             libgudev-1.0-0 \
             libjpeg62-turbo \
