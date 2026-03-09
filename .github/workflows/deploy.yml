@@ -70,28 +70,8 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           version: latest
-
-      - name: Cache
-        uses: actions/cache@v4
-        id: cache
-        with:
-          path: |
-            var-cache-apt
-            var-lib-apt
-            var-ccache
-          key: ${{ env.PLATFORM_PAIR }}-cache-${{ hashFiles('Dockerfile') }}
-          restore-keys: ${{ env.PLATFORM_PAIR }}-cache-
-
-      - name: Inject cache into Docker
-        uses: reproducible-containers/buildkit-cache-dance@v3
-        with:
-          cache-map: |
-            {
-              "var-cache-apt": "/var/cache/apt",
-              "var-lib-apt": "/var/lib/apt",
-              "var-ccache": "~/.cache"
-            }
-          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
+          name: builder-${{ env.PLATFORM_PAIR }}
+          keep-state: true
 
       - name: Login to DockerHub
         if: success() && github.event_name != 'pull_request'
