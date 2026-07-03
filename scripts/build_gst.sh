@@ -15,7 +15,7 @@ GST_VERSION=${GST_VERSION:-main}
 # This install directory will be accessed by other stages of the docker build:
 GST_INSTALL_DIR=${GST_INSTALL_DIR:-/artifacts}
 GST_OMX_ENABLED=${GST_OMX_ENABLED:-false}  # Unsupported since GStreamer 1.24.0
-LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-false}  # FIXME: libcamera is failing to build because pyyaml is not building on armv7
+LIBCAMERA_ENABLED=${LIBCAMERA_ENABLED:-true}
 LIBCAMERA_VERSION=${LIBCAMERA_VERSION:-master}
 LIBCAMERA_GIT_URL=${LIBCAMERA_GIT_URL:-https://git.libcamera.org/libcamera/libcamera.git}
 ARCH=${ARCH:-$(uname -m)}
